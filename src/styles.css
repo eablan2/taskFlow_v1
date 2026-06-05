@@ -722,3 +722,132 @@ table.items tr:hover td { background: var(--surface2); cursor: pointer; }
   font-size: 13px; color: var(--text2); line-height: 1.6;
   white-space: pre-wrap;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════════════════ */
+
+/* ── Hamburger toggle button (hidden on desktop) ─────────────────── */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 52px; height: 56px;
+  align-items: center; justify-content: center;
+  background: var(--surface);
+  border: none;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 310;
+  transition: background 0.12s, color 0.12s;
+}
+.sidebar-toggle:hover { background: var(--surface2); color: var(--text); }
+
+/* ── Backdrop (hidden on desktop) ───────────────────────────────── */
+.sidebar-backdrop {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(2px);
+  z-index: 299;
+  animation: fadeIn 0.2s ease;
+}
+
+@media (max-width: 768px) {
+
+  /* Allow page to scroll on mobile */
+  body { overflow: auto; }
+
+  /* ── Shell ──────────────────────────────────────────────────────── */
+  .shell { grid-template-columns: 1fr; }
+
+  /* Sidebar becomes a fixed slide-in drawer */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 240px;
+    z-index: 300;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    /* Keep box-shadow hidden until open */
+    box-shadow: none;
+  }
+  .shell.sidebar-open .sidebar {
+    transform: translateX(0);
+    box-shadow: 8px 0 32px rgba(0,0,0,0.4);
+  }
+  .shell.sidebar-open .sidebar-backdrop { display: block; }
+
+  /* Hamburger visible on mobile */
+  .sidebar-toggle { display: flex; }
+
+  /* Push topbar content right to clear the hamburger */
+  .topbar { padding: 0 16px 0 60px; }
+
+  /* ── Page content ───────────────────────────────────────────────── */
+  .page-content { padding: 16px 12px; }
+
+  /* ── Dashboard stats: 2 cols on mobile ─────────────────────────── */
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .stat-val   { font-size: 22px; }
+
+  /* ── Charts: stack vertically ───────────────────────────────────── */
+  .chart-row { grid-template-columns: 1fr; }
+
+  /* ── Tables: horizontal scroll ──────────────────────────────────── */
+  .items-table-wrap { overflow-x: auto; }
+  table.items, .user-table { min-width: 620px; }
+
+  /* ── Backlog filters: stack ─────────────────────────────────────── */
+  .table-filters  { flex-direction: column; align-items: stretch; gap: 6px; }
+  .search-wrap    { width: 100%; }
+  .search-input   { width: 100%; }
+  .filter-select  { width: 100%; }
+
+  /* ── Kanban: horizontal scroll ──────────────────────────────────── */
+  .kanban-board {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    gap: 10px;
+    /* prevent grid from constraining */
+    grid-template-columns: unset;
+  }
+  .kanban-col {
+    min-width: 230px;
+    flex-shrink: 0;
+  }
+
+  /* ── Modals: bottom sheet on mobile ─────────────────────────────── */
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal {
+    width: 100%;
+    max-height: 92vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+  .modal-lg { width: 100%; }
+
+  /* ── Detail panel: full width ───────────────────────────────────── */
+  .detail-panel { width: 100%; left: 0; }
+
+  /* ── Form rows: stack ───────────────────────────────────────────── */
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+
+  /* ── Login: full width with padding ─────────────────────────────── */
+  .login-view { padding: 24px 16px; align-items: flex-start; padding-top: 60px; }
+  .login-box  { width: 100%; padding: 32px 24px; }
+
+  /* ── Section header ─────────────────────────────────────────────── */
+  .section-header { margin-bottom: 12px; }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .topbar     { height: 52px; }
+  .page-title { font-size: 15px; }
+  .btn        { padding: 8px 14px; font-size: 13px; }
+}

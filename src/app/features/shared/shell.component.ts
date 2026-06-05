@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
@@ -15,6 +15,8 @@ import { WorkItemModalComponent } from '../shared/work-item-modal.component';
 export class ShellComponent {
   currentUser$ = this.auth.currentUser$;
   toasts$      = this.toast.toasts$;
+  menuOpen     = signal(false);
+  toggleMenu() { this.menuOpen.update(v => !v); }
 
   constructor(
     private auth:  AuthService,

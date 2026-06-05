@@ -1,4 +1,12 @@
-<div class="shell">
+<div class="shell" [class.sidebar-open]="menuOpen()">
+
+  <!-- Mobile backdrop -->
+  <div class="sidebar-backdrop" (click)="menuOpen.set(false)"></div>
+
+  <!-- Mobile hamburger -->
+  <button class="sidebar-toggle" (click)="toggleMenu()" [attr.aria-label]="menuOpen() ? 'Close menu' : 'Open menu'">
+    <i [class]="menuOpen() ? 'ti ti-x' : 'ti ti-menu-2'"></i>
+  </button>
 
   <!-- ── Sidebar ── -->
   <aside class="sidebar">
@@ -11,13 +19,13 @@
       <div class="nav-section">
         <div class="nav-label">Workspace</div>
 
-        <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+        <a class="nav-item" routerLink="/dashboard" routerLinkActive="active" (click)="menuOpen.set(false)">
           <i class="ti ti-layout-dashboard"></i> Dashboard
         </a>
-        <a class="nav-item" routerLink="/backlog" routerLinkActive="active">
+        <a class="nav-item" routerLink="/backlog" routerLinkActive="active" (click)="menuOpen.set(false)">
           <i class="ti ti-list"></i> Backlog
         </a>
-        <a class="nav-item" routerLink="/board" routerLinkActive="active">
+        <a class="nav-item" routerLink="/board" routerLinkActive="active" (click)="menuOpen.set(false)">
           <i class="ti ti-layout-kanban"></i> Board
         </a>
       </div>
@@ -25,7 +33,7 @@
       @if (isAdmin) {
         <div class="nav-section">
           <div class="nav-label">Administration</div>
-          <a class="nav-item" routerLink="/admin" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin" routerLinkActive="active" (click)="menuOpen.set(false)">
             <i class="ti ti-users"></i> User Management
           </a>
         </div>
