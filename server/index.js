@@ -6,12 +6,7 @@ const app  = express();
 const PORT = process.env.PORT || 3000;
 const PROD = process.env.NODE_ENV === 'production';
 
-// In dev the Angular CLI dev-server runs separately on :4200, so allow CORS.
-// In production Express serves the built files directly — no CORS needed.
-if (!PROD) {
-  app.use(cors({ origin: 'http://localhost:4200' }));
-}
-
+app.use(cors());
 app.use(express.json());
 
 // API routes
@@ -24,7 +19,7 @@ if (PROD) {
   const static_dir = path.join(__dirname, '..', 'dist', 'taskflow', 'browser');
   app.use(express.static(static_dir));
   // SPA fallback — let Angular's router handle all non-API routes
-  app.get('*', (req, res) => {
+  app.get('*', (_req, res) => {
     res.sendFile(path.join(static_dir, 'index.html'));
   });
 }
