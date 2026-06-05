@@ -1,0 +1,101 @@
+<div class="modal-overlay open" (click)="cancel()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+
+    <div class="modal-head">
+      <h3>{{ title }}</h3>
+      <button class="icon-btn" (click)="cancel()"><i class="ti ti-x"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Type *</label>
+          <select [(ngModel)]="form.type">
+            @for (t of TYPES; track t) { <option [value]="t">{{ t }}</option> }
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select [(ngModel)]="form.status">
+            @for (s of STATUSES; track s) { <option [value]="s">{{ s }}</option> }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Title *</label>
+        <input type="text" [(ngModel)]="form.title" placeholder="Short, descriptive title" />
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea [(ngModel)]="form.desc" rows="4" placeholder="Detailed description, acceptance criteria, context…"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Priority</label>
+          <select [(ngModel)]="form.priority">
+            @for (p of PRIORITIES; track p) { <option [value]="p">{{ p }}</option> }
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Assigned to</label>
+          <select [(ngModel)]="form.assignee">
+            <option value="">Unassigned</option>
+            @for (u of users; track u.id) { <option [value]="u.id">{{ u.name }}</option> }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Story points</label>
+          <input type="number" [(ngModel)]="form.points" placeholder="e.g. 3" min="0" max="100" />
+        </div>
+        <div class="form-group">
+          <label>Due date</label>
+          <input type="date" [(ngModel)]="form.due" />
+        </div>
+      </div>
+
+      <!-- Linked items -->
+      <div class="linked-section">
+        <h4>Linked items</h4>
+        <div class="linked-list">
+          @for (lid of form.links; track lid) {
+            @if (getLinkedItem(lid); as linked) {
+              <div class="linked-chip">
+                <span class="badge" [class]="linked.type | typeCss">
+                  <span class="badge-dot" [class]="linked.type | dotCss"></span>
+                  {{ linked.type }}
+                </span>
+                <span class="chip-id">{{ linked.id }}</span>
+                <span class="chip-title">{{ linked.title }}</span>
+                <button class="icon-btn danger" style="margin-left:auto;padding:2px 4px" (click)="removeLink(lid)">
+                  <i class="ti ti-x" style="font-size:12px"></i>
+                </button>
+              </div>
+            }
+          }
+        </div>
+        <div class="add-link-row">
+          <select class="filter-select" style="flex:1;font-size:12px" (change)="addLink($event)">
+            <option value="">— link another item —</option>
+            @for (opt of linkOptions; track opt.id) {
+              <option [value]="opt.id">[{{ opt.id }}] {{ opt.title }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-ghost" (click)="cancel()">Cancel</button>
+      <button class="btn btn-primary" (click)="save()">
+        <i class="ti ti-check"></i> Save
+      </button>
+    </div>
+
+  </div>
+</div>

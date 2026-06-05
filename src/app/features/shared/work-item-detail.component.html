@@ -1,0 +1,89 @@
+<div class="detail-backdrop" (click)="close.emit()"></div>
+
+<aside class="detail-panel">
+
+  <div class="detail-head">
+    <div class="detail-head-meta">
+      <span class="item-id">{{ item.id }}</span>
+      <span class="badge" [class]="item.type | typeCss">
+        <span class="badge-dot" [class]="item.type | dotCss"></span>
+        {{ item.type }}
+      </span>
+    </div>
+    <div class="detail-head-actions">
+      @if (isAdmin) {
+        <button class="btn btn-danger" style="padding:6px 14px;font-size:13px" (click)="deleteClick.emit(item.id)">
+          <i class="ti ti-trash"></i> Delete
+        </button>
+      }
+      <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px" (click)="edit.emit(item)">
+        <i class="ti ti-edit"></i> Edit
+      </button>
+      <button class="icon-btn" (click)="close.emit()" title="Close">
+        <i class="ti ti-x" style="font-size:16px"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="detail-body">
+
+    <h2 class="detail-title">{{ item.title }}</h2>
+
+    <div class="detail-meta-grid">
+      <div class="detail-meta-item">
+        <span class="detail-meta-label">Status</span>
+        <span class="status-badge" [class]="item.status | statusCss">{{ item.status }}</span>
+      </div>
+      <div class="detail-meta-item">
+        <span class="detail-meta-label">Priority</span>
+        <span class="pri-badge" [class]="item.priority | priorityCss">{{ item.priority }}</span>
+      </div>
+      <div class="detail-meta-item">
+        <span class="detail-meta-label">Assignee</span>
+        <span class="detail-meta-value">{{ userName(item.assignee) }}</span>
+      </div>
+      <div class="detail-meta-item">
+        <span class="detail-meta-label">Story points</span>
+        <span class="detail-meta-value" style="font-family:var(--mono)">{{ item.points || '—' }}</span>
+      </div>
+      <div class="detail-meta-item">
+        <span class="detail-meta-label">Due date</span>
+        <span class="detail-meta-value">{{ item.due || '—' }}</span>
+      </div>
+      <div class="detail-meta-item">
+        <span class="detail-meta-label">Created</span>
+        <span class="detail-meta-value">{{ item.created | date:'mediumDate' }}</span>
+      </div>
+    </div>
+
+    @if (item.desc) {
+      <div class="detail-section">
+        <div class="detail-section-label">Description</div>
+        <p class="detail-desc">{{ item.desc }}</p>
+      </div>
+    }
+
+    @if (item.links.length > 0) {
+      <div class="detail-section">
+        <div class="detail-section-label">Linked items</div>
+        <div class="linked-list">
+          @for (lid of item.links; track lid) {
+            @let linked = linkedItem(lid);
+            @if (linked) {
+              <div class="linked-chip">
+                <span class="chip-id">{{ linked.id }}</span>
+                <span class="badge" [class]="linked.type | typeCss" style="font-size:10px;padding:1px 6px">
+                  <span class="badge-dot" [class]="linked.type | dotCss"></span>
+                  {{ linked.type }}
+                </span>
+                <span class="chip-title">{{ linked.title }}</span>
+                <span class="status-badge" [class]="linked.status | statusCss" style="font-size:10px">{{ linked.status }}</span>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    }
+
+  </div>
+</aside>

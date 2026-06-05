@@ -1,0 +1,67 @@
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="page-title">Board</span>
+  </div>
+  <button class="btn btn-primary" (click)="openCreate()">
+    <i class="ti ti-plus"></i> New Item
+  </button>
+</div>
+
+<div class="page-content">
+
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+    <select class="filter-select" [(ngModel)]="typeFilter" (ngModelChange)="renderBoard()">
+      @for (t of TYPES; track t) {
+        <option [value]="t">{{ t || 'All types' }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="kanban-board">
+    @for (col of columns; track col.status) {
+      <div class="kanban-col">
+        <div class="kanban-col-head">
+          <span class="kanban-col-title" [style.color]="col.color">{{ col.status }}</span>
+          <span class="kanban-count">{{ col.items.length }}</span>
+        </div>
+        <div class="kanban-items">
+          @for (item of col.items; track item.id) {
+            <div class="kanban-card" (click)="openDetail(item)">
+              <div class="kanban-card-id">{{ item.id }}</div>
+              <div class="kanban-card-title">{{ item.title }}</div>
+              <div class="kanban-card-footer">
+                <span class="badge" [class]="item.type | typeCss">
+                  <span class="badge-dot" [class]="item.type | dotCss"></span>
+                  {{ item.type }}
+                </span>
+                @if (item.points) {
+                  <span style="font-size:11px;font-family:var(--mono);color:var(--text3)">{{ item.points }}pt</span>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div style="font-size:11px;color:var(--text3);padding:4px">Empty</div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+</div>
+
+@if (selectedItem) {
+  <app-work-item-detail
+    [item]="selectedItem"
+    (close)="selectedItem = null"
+    (edit)="openEdit($event); selectedItem = null"
+    (deleteClick)="onDelete($event)"
+  />
+}
+
+@if (showModal) {
+  <app-work-item-modal
+    [item]="editItem"
+    (saved)="closeModal()"
+    (cancelled)="closeModal()"
+  />
+}

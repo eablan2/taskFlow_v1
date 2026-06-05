@@ -1,0 +1,71 @@
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="page-title">Backlog</span>
+  </div>
+  <button class="btn btn-primary" (click)="openCreate()">
+    <i class="ti ti-plus"></i> New Item
+  </button>
+</div>
+
+<div class="page-content">
+  <div class="items-table-wrap">
+    <div class="table-header">
+      <div class="table-filters">
+
+        <div class="search-wrap">
+          <i class="ti ti-search"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search items…"
+            [(ngModel)]="filters.search"
+            (ngModelChange)="onFilterChange()"
+          />
+        </div>
+
+        <select class="filter-select" [(ngModel)]="filters.type" (ngModelChange)="onFilterChange()">
+          @for (t of TYPES; track t) {
+            <option [value]="t">{{ t || 'All types' }}</option>
+          }
+        </select>
+
+        <select class="filter-select" [(ngModel)]="filters.status" (ngModelChange)="onFilterChange()">
+          @for (s of STATUSES; track s) {
+            <option [value]="s">{{ s || 'All statuses' }}</option>
+          }
+        </select>
+
+        <select class="filter-select" [(ngModel)]="filters.priority" (ngModelChange)="onFilterChange()">
+          @for (p of PRIORITIES; track p) {
+            <option [value]="p">{{ p || 'All priorities' }}</option>
+          }
+        </select>
+
+      </div>
+    </div>
+
+    <app-work-item-table
+      [items]="items"
+      (itemClick)="selectedItem = $event"
+      (editClick)="openEdit($event)"
+      (deleteClick)="onDelete($event)"
+    />
+  </div>
+</div>
+
+@if (selectedItem) {
+  <app-work-item-detail
+    [item]="selectedItem"
+    (close)="selectedItem = null"
+    (edit)="openEdit($event); selectedItem = null"
+    (deleteClick)="onDelete($event); selectedItem = null"
+  />
+}
+
+@if (showModal) {
+  <app-work-item-modal
+    [item]="editItem"
+    (saved)="closeModal()"
+    (cancelled)="closeModal()"
+  />
+}

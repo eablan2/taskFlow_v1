@@ -1,0 +1,79 @@
+<div class="shell">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="ti ti-topology-star-3"></i></div>
+      <span class="sidebar-title">TaskFlow</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-label">Workspace</div>
+
+        <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+          <i class="ti ti-layout-dashboard"></i> Dashboard
+        </a>
+        <a class="nav-item" routerLink="/backlog" routerLinkActive="active">
+          <i class="ti ti-list"></i> Backlog
+        </a>
+        <a class="nav-item" routerLink="/board" routerLinkActive="active">
+          <i class="ti ti-layout-kanban"></i> Board
+        </a>
+      </div>
+
+      @if (isAdmin) {
+        <div class="nav-section">
+          <div class="nav-label">Administration</div>
+          <a class="nav-item" routerLink="/admin" routerLinkActive="active">
+            <i class="ti ti-users"></i> User Management
+          </a>
+        </div>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <!-- ── Theme toggle ── -->
+      <button class="theme-toggle" (click)="theme.toggle()" [title]="theme.isDark ? 'Switch to light mode' : 'Switch to dark mode'">
+        <div class="theme-toggle-track">
+          <i class="ti ti-moon"  aria-hidden="true"></i>
+          <i class="ti ti-sun"   aria-hidden="true"></i>
+          <div class="theme-toggle-thumb"></div>
+        </div>
+        <span class="theme-toggle-label">{{ theme.isDark ? 'Dark mode' : 'Light mode' }}</span>
+      </button>
+
+      <!-- ── User / logout ── -->
+      <div class="user-pill" (click)="logout()">
+        <div class="avatar">{{ initials }}</div>
+        @let user = currentUser$ | async;
+        @if (user) {
+          <div class="user-info">
+            <div class="user-name">{{ user.name }}</div>
+            <div class="user-role">{{ user.role === 'admin' ? 'Admin' : 'Member' }}</div>
+          </div>
+        }
+        <i class="ti ti-logout" style="color:var(--text3);font-size:15px"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main content ── -->
+  <main class="main">
+    <router-outlet />
+  </main>
+
+</div>
+
+<!-- ── Toast notifications ── -->
+<div class="toast">
+  @let toasts = toasts$ | async;
+  @for (t of toasts ?? []; track t.id) {
+    <div class="toast-item" [class]="t.type" (click)="dismissToast(t.id)">
+      <i class="ti"
+         [class.ti-circle-check]="t.type === 'success'"
+         [class.ti-alert-circle]="t.type === 'error'"></i>
+      {{ t.message }}
+    </div>
+  }
+</div>

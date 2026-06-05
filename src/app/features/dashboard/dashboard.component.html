@@ -1,0 +1,87 @@
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="page-title">Dashboard</span>
+  </div>
+  <button class="btn btn-primary" (click)="openCreate()">
+    <i class="ti ti-plus"></i> New Item
+  </button>
+</div>
+
+<div class="page-content">
+
+  <!-- Stat cards -->
+  <div class="stats-grid">
+    @for (card of stats; track card.label) {
+      <div class="stat-card">
+        <div class="stat-label">{{ card.label }}</div>
+        <div class="stat-val" [style.color]="card.color">{{ card.value }}</div>
+        <div class="stat-sub">{{ card.sub }}</div>
+      </div>
+    }
+  </div>
+
+  <!-- Charts -->
+  <div class="chart-row">
+    <div class="chart-card">
+      <h3>Items by type</h3>
+      <div class="bar-chart">
+        @for (entry of typeChart; track entry.label) {
+          <div class="bar-row">
+            <span class="bar-label">{{ entry.label }}</span>
+            <div class="bar-track">
+              <div class="bar-fill" [style.width.%]="entry.pct" [style.background]="entry.color"></div>
+            </div>
+            <span class="bar-count">{{ entry.count }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Items by status</h3>
+      <div class="bar-chart">
+        @for (entry of statusChart; track entry.label) {
+          <div class="bar-row">
+            <span class="bar-label" style="width:70px">{{ entry.label }}</span>
+            <div class="bar-track">
+              <div class="bar-fill" [style.width.%]="entry.pct" [style.background]="entry.color"></div>
+            </div>
+            <span class="bar-count">{{ entry.count }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent items -->
+  <div class="section-header">
+    <h2>Recent items</h2>
+  </div>
+
+  <div class="items-table-wrap">
+    <app-work-item-table
+      [items]="recentItems"
+      (itemClick)="openDetail($event)"
+      (editClick)="openEdit($event)"
+      (deleteClick)="onDelete($event)"
+    />
+  </div>
+
+</div>
+
+@if (selectedItem) {
+  <app-work-item-detail
+    [item]="selectedItem"
+    (close)="closeDetail()"
+    (edit)="openEdit($event)"
+    (deleteClick)="onDelete($event); closeDetail()"
+  />
+}
+
+@if (showModal) {
+  <app-work-item-modal
+    [item]="editItem"
+    (saved)="closeModal()"
+    (cancelled)="closeModal()"
+  />
+}
