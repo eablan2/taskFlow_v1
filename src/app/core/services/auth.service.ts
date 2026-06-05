@@ -1,13 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, filter, map, of, take, tap } from 'rxjs';
 import { User } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  private currentUserSubject  = new BehaviorSubject<User | null>(null);
+  private sessionReadySubject = new BehaviorSubject<boolean>(false);
 
-  currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
+  currentUser$:   Observable<User | null> = this.currentUserSubject.asObservable();
+  /** Emits true once the initial session restore attempt has completed. */
+  sessionReady$:  Observable<boolean>     = this.sessionReadySubject.asObservable();
 
   get currentUser(): User | null { return this.currentUserSubject.value; }
   get isAdmin(): boolean         { return this.currentUser?.role === 'admin'; }
@@ -36,12 +39,18 @@ export class AuthService {
 
   private restoreSession(): void {
     const token = localStorage.getItem('tf_token');
-    if (!token) return;
+    if (!token) {
+      this.sessionReadySubject.next(true);
+      return;
+    }
     this.http.get<User>('/api/auth/me').pipe(
       catchError(() => {
         localStorage.removeItem('tf_token');
         return of(null);
       }),
-    ).subscribe(user => this.currentUserSubject.next(user));
+    ).subscribe(user => {
+      this.currentUserSubject.next(user);
+      this.sessionReadySubject.next(true);
+    });
   }
 }
