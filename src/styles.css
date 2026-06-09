@@ -723,6 +723,49 @@ table.items tr:hover td { background: var(--surface2); cursor: pointer; }
   white-space: pre-wrap;
 }
 
+/* ── Comments ─────────────────────────────────────────────────────── */
+.comments-list { display: flex; flex-direction: column; gap: 12px; }
+.comments-empty { font-size: 13px; color: var(--text3); }
+
+.comment-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.comment-header {
+  display: flex; align-items: center; gap: 8px;
+}
+.comment-author { font-size: 12px; font-weight: 600; color: var(--text); }
+.comment-date   { font-size: 11px; color: var(--text3); }
+.comment-body   { font-size: 13px; color: var(--text2); line-height: 1.55; white-space: pre-wrap; margin: 0; }
+
+.comment-reactions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.reaction-btn {
+  display: inline-flex; align-items: center; gap: 3px;
+  background: var(--surface3); border: 1px solid var(--border);
+  border-radius: 12px; padding: 2px 8px; font-size: 14px;
+  cursor: pointer; color: var(--text2); transition: background 0.12s, border-color 0.12s;
+}
+.reaction-btn:hover  { background: var(--border); }
+.reaction-btn.reacted { background: var(--accent-dim, #1e3a5f); border-color: var(--accent); }
+.reaction-count { font-size: 11px; color: var(--text2); }
+
+.comment-compose {
+  display: flex; flex-direction: column; gap: 8px; margin-top: 4px;
+}
+.comment-input {
+  width: 100%; box-sizing: border-box;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 10px;
+  font-size: 13px; color: var(--text); font-family: inherit;
+  resize: vertical; outline: none;
+  transition: border-color 0.15s;
+}
+.comment-input:focus { border-color: var(--accent); }
+.comment-input::placeholder { color: var(--text3); }
+
 /* ══════════════════════════════════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════════════════════════════════ */

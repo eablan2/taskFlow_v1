@@ -12,6 +12,7 @@ app.use(express.json());
 // API routes
 app.use('/api/auth',  require('./routes/auth'));
 app.use('/api/items', require('./routes/items'));
+app.use('/api/items', require('./routes/comments'));
 app.use('/api/users', require('./routes/users'));
 
 // Serve Angular build in production

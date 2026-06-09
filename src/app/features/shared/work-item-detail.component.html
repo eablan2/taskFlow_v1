@@ -85,5 +85,54 @@
       </div>
     }
 
+    <!-- Comments -->
+    <div class="detail-section">
+      <div class="detail-section-label">Comments ({{ comments.length }})</div>
+
+      <div class="comments-list">
+        @for (c of comments; track c.id) {
+          <div class="comment-item">
+            <div class="comment-header">
+              <span class="comment-author">{{ userName(c.user_id) }}</span>
+              <span class="comment-date">{{ c.created | date:'MMM d, y, h:mm a' }}</span>
+            </div>
+            <p class="comment-body">{{ c.body }}</p>
+            <div class="comment-reactions">
+              @for (emoji of EMOJIS; track emoji) {
+                <button
+                  class="reaction-btn"
+                  [class.reacted]="hasReacted(c, emoji)"
+                  (click)="toggleReaction(c, emoji)"
+                  [title]="emoji">
+                  {{ emoji }}
+                  @if (reactionCount(c, emoji) > 0) {
+                    <span class="reaction-count">{{ reactionCount(c, emoji) }}</span>
+                  }
+                </button>
+              }
+            </div>
+          </div>
+        }
+        @if (comments.length === 0) {
+          <p class="comments-empty">No comments yet.</p>
+        }
+      </div>
+
+      <div class="comment-compose">
+        <textarea
+          class="comment-input"
+          rows="3"
+          placeholder="Write a comment…"
+          [(ngModel)]="newComment"
+          (keydown.meta.enter)="submitComment()"
+          (keydown.control.enter)="submitComment()">
+        </textarea>
+        <button class="btn btn-primary" style="align-self:flex-end;padding:6px 18px;font-size:13px"
+          (click)="submitComment()" [disabled]="!newComment.trim() || submitting">
+          Post
+        </button>
+      </div>
+    </div>
+
   </div>
 </aside>

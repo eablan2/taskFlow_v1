@@ -25,6 +25,15 @@ export interface User {
   role: UserRole;
 }
 
+export interface Comment {
+  id: string;
+  item_id: string;
+  user_id: string;
+  body: string;
+  created: number;
+  reactions: Record<string, string[]>; // emoji -> userIds[]
+}
+
 export interface WorkItemFilters {
   search?: string;
   type?: ItemType | '';

@@ -39,6 +39,21 @@ db.exec(`
     id  TEXT PRIMARY KEY,
     val INTEGER NOT NULL DEFAULT 1
   );
+
+  CREATE TABLE IF NOT EXISTS comments (
+    id        TEXT PRIMARY KEY,
+    item_id   TEXT NOT NULL,
+    user_id   TEXT NOT NULL,
+    body      TEXT NOT NULL,
+    created   INTEGER NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS comment_reactions (
+    comment_id TEXT NOT NULL,
+    user_id    TEXT NOT NULL,
+    emoji      TEXT NOT NULL,
+    PRIMARY KEY (comment_id, user_id, emoji)
+  );
 `);
 
 // Seed users if empty
