@@ -28,6 +28,9 @@
         <a class="nav-item" routerLink="/board" routerLinkActive="active" (click)="menuOpen.set(false)">
           <i class="ti ti-layout-kanban"></i> Board
         </a>
+        <a class="nav-item" routerLink="/items" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}" (click)="menuOpen.set(false)">
+          <i class="ti ti-file-description"></i> Item View
+        </a>
       </div>
 
       @if (isAdmin) {

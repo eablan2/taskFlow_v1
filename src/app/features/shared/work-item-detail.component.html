@@ -11,6 +11,9 @@
       </span>
     </div>
     <div class="detail-head-actions">
+      <a class="btn btn-ghost" [routerLink]="['/items', item.id]" style="padding:6px 14px;font-size:13px" (click)="close.emit()">
+        <i class="ti ti-maximize"></i> Full View
+      </a>
       @if (isAdmin) {
         <button class="btn btn-danger" style="padding:6px 14px;font-size:13px" (click)="deleteClick.emit(item.id)">
           <i class="ti ti-trash"></i> Delete

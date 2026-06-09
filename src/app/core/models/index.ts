@@ -40,4 +40,5 @@ export interface WorkItemFilters {
   type?: ItemType | '';
   status?: ItemStatus | '';
   priority?: ItemPriority | '';
+  assignee?: string;
 }

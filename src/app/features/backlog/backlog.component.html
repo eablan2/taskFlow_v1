@@ -50,6 +50,16 @@
           </select>
         </div>
 
+        <div class="filter-field">
+          <label class="filter-label">Assignee</label>
+          <select class="filter-select" [(ngModel)]="filters.assignee" (ngModelChange)="onFilterChange()">
+            <option value="">All</option>
+            @for (u of users; track u.id) {
+              <option [value]="u.id">{{ u.name }}</option>
+            }
+          </select>
+        </div>
+
       </div>
     </div>
 

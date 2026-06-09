@@ -30,6 +30,11 @@ export const routes: Routes = [
           import('./features/board/board.component').then(m => m.BoardComponent),
       },
       {
+        path: 'items/:id',
+        loadComponent: () =>
+          import('./features/item-detail/item-detail-page.component').then(m => m.ItemDetailPageComponent),
+      },
+      {
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () =>

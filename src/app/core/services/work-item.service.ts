@@ -60,6 +60,7 @@ export class WorkItemService {
     if (f.type)     result = result.filter(i => i.type     === f.type);
     if (f.status)   result = result.filter(i => i.status   === f.status);
     if (f.priority) result = result.filter(i => i.priority === f.priority);
+    if (f.assignee) result = result.filter(i => i.assignee === f.assignee);
     return result;
   }
 

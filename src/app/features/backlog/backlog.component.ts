@@ -3,7 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { AsyncPipe } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { WorkItemService } from '../../core/services/work-item.service';
-import { WorkItem, WorkItemFilters, ItemType, ItemStatus, ItemPriority } from '../../core/models';
+import { UserService } from '../../core/services/user.service';
+import { WorkItem, WorkItemFilters, ItemType, ItemStatus, ItemPriority, User } from '../../core/models';
 import { WorkItemTableComponent } from '../shared/work-item-table.component';
 import { WorkItemModalComponent } from '../shared/work-item-modal.component';
 import { WorkItemDetailComponent } from '../shared/work-item-detail.component';
@@ -28,7 +29,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(private workItemService: WorkItemService) {}
+  get users(): User[] { return this.userService.getAll(); }
+
+  constructor(private workItemService: WorkItemService, private userService: UserService) {}
 
   ngOnInit(): void {
     this.workItemService.filteredItems$

@@ -1,0 +1,208 @@
+@if (item) {
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="btn btn-ghost" routerLink="/backlog" style="padding:6px 12px;font-size:13px">
+      <i class="ti ti-arrow-left"></i> Back
+    </a>
+    <span class="item-id" style="margin-left:8px">{{ item.id }}</span>
+    <span class="badge" [class]="item.type | typeCss" style="margin-left:6px">
+      <span class="badge-dot" [class]="item.type | dotCss"></span>{{ item.type }}
+    </span>
+  </div>
+  <div style="display:flex;gap:8px">
+    @if (isAdmin) {
+      <button class="btn btn-danger" style="padding:6px 14px;font-size:13px" (click)="onDelete()">
+        <i class="ti ti-trash"></i> Delete
+      </button>
+    }
+    <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px" (click)="showModal = true">
+      <i class="ti ti-edit"></i> Edit
+    </button>
+  </div>
+</div>
+
+<div class="page-content">
+  <div class="full-detail-layout">
+
+    <!-- Left: main info + comments -->
+    <div class="full-detail-main">
+
+      <h1 class="full-detail-title">{{ item.title }}</h1>
+
+      @if (item.desc) {
+        <div class="detail-section">
+          <div class="detail-section-label">Description</div>
+          <p class="detail-desc">{{ item.desc }}</p>
+        </div>
+      }
+
+      <!-- Comments -->
+      <div class="detail-section">
+        <div class="detail-section-label">Comments ({{ comments.length }})</div>
+
+        <div class="comments-list">
+          @for (c of topLevel(); track c.id) {
+            <div class="comment-bubble">
+              <div class="comment-bubble-header">
+                <span class="comment-author">{{ userName(c.user_id) }}</span>
+                <span class="comment-date">{{ c.created | date:'MMM d, y • h:mm a' }}</span>
+              </div>
+              <p class="comment-body">{{ c.body }}</p>
+              @if (activeReactions(c).length > 0) {
+                <div class="comment-reactions">
+                  @for (emoji of activeReactions(c); track emoji) {
+                    <button class="reaction-pill" [class.reacted]="hasReacted(c, emoji)"
+                      [title]="reactionTooltip(c, emoji)" (click)="pickEmoji(c, emoji)">
+                      <span class="reaction-emoji">{{ emoji }}</span>
+                      <span class="reaction-count">{{ reactionCount(c, emoji) }}</span>
+                    </button>
+                  }
+                </div>
+              }
+              <div class="comment-actions">
+                <div class="emoji-picker-wrap">
+                  <button class="comment-action-btn" (click)="toggleEmojiPicker(c.id)"><i class="ti ti-mood-smile"></i></button>
+                  @if (emojiPickerFor === c.id) {
+                    <div class="emoji-picker">
+                      @for (emoji of EMOJIS; track emoji) {
+                        <button class="emoji-option" (click)="pickEmoji(c, emoji)">{{ emoji }}</button>
+                      }
+                    </div>
+                  }
+                </div>
+                <button class="comment-action-btn" (click)="startReply(c)"><i class="ti ti-corner-down-right"></i> Reply</button>
+                @if (c.user_id === currentUserId) {
+                  <button class="comment-action-btn comment-action-delete" (click)="deleteComment(c)"><i class="ti ti-trash"></i> Delete</button>
+                }
+              </div>
+              @if (repliesFor(c.id).length > 0) {
+                <div class="replies-list">
+                  @for (r of repliesFor(c.id); track r.id) {
+                    <div class="comment-bubble reply-bubble">
+                      <div class="comment-bubble-header">
+                        <span class="comment-author">{{ userName(r.user_id) }}</span>
+                        <span class="comment-date">{{ r.created | date:'MMM d, y • h:mm a' }}</span>
+                      </div>
+                      <p class="comment-body">{{ r.body }}</p>
+                      @if (activeReactions(r).length > 0) {
+                        <div class="comment-reactions">
+                          @for (emoji of activeReactions(r); track emoji) {
+                            <button class="reaction-pill" [class.reacted]="hasReacted(r, emoji)"
+                              [title]="reactionTooltip(r, emoji)" (click)="pickEmoji(r, emoji)">
+                              <span class="reaction-emoji">{{ emoji }}</span>
+                              <span class="reaction-count">{{ reactionCount(r, emoji) }}</span>
+                            </button>
+                          }
+                        </div>
+                      }
+                      <div class="comment-actions">
+                        <div class="emoji-picker-wrap">
+                          <button class="comment-action-btn" (click)="toggleEmojiPicker(r.id)"><i class="ti ti-mood-smile"></i></button>
+                          @if (emojiPickerFor === r.id) {
+                            <div class="emoji-picker">
+                              @for (emoji of EMOJIS; track emoji) {
+                                <button class="emoji-option" (click)="pickEmoji(r, emoji)">{{ emoji }}</button>
+                              }
+                            </div>
+                          }
+                        </div>
+                        @if (r.user_id === currentUserId) {
+                          <button class="comment-action-btn comment-action-delete" (click)="deleteComment(r)"><i class="ti ti-trash"></i> Delete</button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+              @if (replyingTo?.id === c.id) {
+                <div class="reply-compose">
+                  <textarea class="comment-input" rows="2"
+                    [placeholder]="'Replying to ' + userName(c.user_id) + '…'"
+                    [(ngModel)]="replyText" (keydown.escape)="cancelReply()"></textarea>
+                  <div class="reply-compose-actions">
+                    <button class="btn btn-ghost" style="font-size:12px;padding:4px 12px" (click)="cancelReply()">Cancel</button>
+                    <button class="btn btn-primary" style="font-size:12px;padding:4px 12px"
+                      (click)="submitReply()" [disabled]="!replyText.trim() || replyingSubmitting">Reply</button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+          @if (comments.length === 0) {
+            <p class="comments-empty">No comments yet. Be the first!</p>
+          }
+        </div>
+
+        <div class="comment-compose">
+          <textarea class="comment-input" rows="3" placeholder="Write a comment…"
+            [(ngModel)]="newComment"
+            (keydown.meta.enter)="submitComment()"
+            (keydown.control.enter)="submitComment()"></textarea>
+          <button class="btn btn-primary" style="align-self:flex-end;padding:6px 18px;font-size:13px"
+            (click)="submitComment()" [disabled]="!newComment.trim() || submitting">Post</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: meta sidebar -->
+    <aside class="full-detail-sidebar">
+      <div class="full-detail-meta-card">
+        <div class="detail-meta-item">
+          <span class="detail-meta-label">Status</span>
+          <span class="status-badge" [class]="item.status | statusCss">{{ item.status }}</span>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-label">Priority</span>
+          <span class="pri-badge" [class]="item.priority | priorityCss">{{ item.priority }}</span>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-label">Assignee</span>
+          <span class="detail-meta-value">{{ userName(item.assignee) }}</span>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-label">Story points</span>
+          <span class="detail-meta-value" style="font-family:var(--mono)">{{ item.points || '—' }}</span>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-label">Due date</span>
+          <span class="detail-meta-value">{{ item.due || '—' }}</span>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-label">Created</span>
+          <span class="detail-meta-value">{{ item.created | date:'mediumDate' }}</span>
+        </div>
+      </div>
+
+      @if (item.links.length > 0) {
+        <div class="full-detail-meta-card">
+          <div class="detail-section-label" style="margin-bottom:8px">Linked items</div>
+          <div class="linked-list">
+            @for (lid of item.links; track lid) {
+              @let linked = linkedItem(lid);
+              @if (linked) {
+                <a class="linked-chip" [routerLink]="['/items', linked.id]">
+                  <span class="chip-id">{{ linked.id }}</span>
+                  <span class="badge" [class]="linked.type | typeCss" style="font-size:10px;padding:1px 6px">
+                    <span class="badge-dot" [class]="linked.type | dotCss"></span>{{ linked.type }}
+                  </span>
+                  <span class="chip-title">{{ linked.title }}</span>
+                  <span class="status-badge" [class]="linked.status | statusCss" style="font-size:10px">{{ linked.status }}</span>
+                </a>
+              }
+            }
+          </div>
+        </div>
+      }
+    </aside>
+
+  </div>
+</div>
+
+} @else {
+  <div class="page-content" style="color:var(--text3);padding:40px">Item not found.</div>
+}
+
+@if (showModal && item) {
+  <app-work-item-modal [item]="item" (saved)="closeModal()" (cancelled)="closeModal()" />
+}

@@ -736,6 +736,28 @@ table.items tr:hover td { background: var(--surface2); cursor: pointer; }
   white-space: pre-wrap;
 }
 
+/* ── Item Full-View Page ──────────────────────────────────────────── */
+.full-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  align-items: start;
+}
+.full-detail-main { display: flex; flex-direction: column; gap: 24px; }
+.full-detail-title { font-size: 22px; font-weight: 700; color: var(--text); margin: 0; }
+.full-detail-sidebar { display: flex; flex-direction: column; gap: 16px; }
+.full-detail-meta-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+@media (max-width: 768px) {
+  .full-detail-layout { grid-template-columns: 1fr; }
+  .full-detail-sidebar { order: -1; }
+}
+
 /* ── Comments ─────────────────────────────────────────────────────── */
 .comments-list  { display: flex; flex-direction: column; gap: 10px; }
 .comments-empty { font-size: 13px; color: var(--text3); padding: 4px 0; }

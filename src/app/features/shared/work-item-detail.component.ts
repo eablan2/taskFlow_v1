@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
 import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { WorkItem, Comment } from '../../core/models';
 import { UserService } from '../../core/services/user.service';
 import { WorkItemService } from '../../core/services/work-item.service';
@@ -11,7 +12,7 @@ import { TypeCssPipe, DotCssPipe, StatusCssPipe, PriorityCssPipe } from './badge
 @Component({
   selector: 'app-work-item-detail',
   standalone: true,
-  imports: [DatePipe, NgFor, NgIf, FormsModule, TypeCssPipe, DotCssPipe, StatusCssPipe, PriorityCssPipe],
+  imports: [DatePipe, NgFor, NgIf, FormsModule, RouterLink, TypeCssPipe, DotCssPipe, StatusCssPipe, PriorityCssPipe],
   templateUrl: './work-item-detail.component.html',
 })
 export class WorkItemDetailComponent implements OnInit, OnChanges {
