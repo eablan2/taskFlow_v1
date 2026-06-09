@@ -88,7 +88,7 @@ export class WorkItemDetailComponent implements OnInit, OnChanges {
     const match = val.match(/@(\w*)$/);
     if (match) {
       const q = match[1].toLowerCase();
-      this.mentionSuggestions = this.userService.getAll()
+      this.mentionSuggestions = this.userService.getNonAdmin()
         .filter(u => u.username.toLowerCase().startsWith(q) || u.name.toLowerCase().startsWith(q))
         .slice(0, 5);
       this.activeMentionField = field;

@@ -35,7 +35,7 @@ export class WorkItemModalComponent implements OnInit {
   };
 
   allItems: WorkItem[] = [];
-  users = this.userService.getAll();
+  users = this.userService.getNonAdmin();
 
   readonly TYPES: ItemType[]          = ['Epic', 'Feature', 'User Story', 'Task'];
   readonly STATUSES: ItemStatus[]     = ['New', 'Active', 'In Review', 'Done', 'Blocked'];
@@ -58,7 +58,7 @@ export class WorkItemModalComponent implements OnInit {
     }
     this.allItems = this.workItemService.getAll();
     // Also subscribe so users list reflects any lazy-loaded data
-    this.userService.users$.subscribe(users => (this.users = users));
+    this.userService.users$.subscribe(() => (this.users = this.userService.getNonAdmin()));
   }
 
   get title(): string {

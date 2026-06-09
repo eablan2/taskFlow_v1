@@ -105,16 +105,20 @@
       </button>
 
       <!-- ── User / logout ── -->
-      <div class="user-pill" (click)="logout()">
-        <div class="avatar">{{ initials }}</div>
-        @let user = currentUser$ | async;
-        @if (user) {
-          <div class="user-info">
-            <div class="user-name">{{ user.name }}</div>
-            <div class="user-role">{{ user.role === 'admin' ? 'Admin' : 'Member' }}</div>
-          </div>
-        }
-        <i class="ti ti-logout" style="color:var(--text3);font-size:15px"></i>
+      <div class="sidebar-user-row">
+        <div class="user-pill" style="cursor:default">
+          <div class="avatar">{{ initials }}</div>
+          @let user = currentUser$ | async;
+          @if (user) {
+            <div class="user-info">
+              <div class="user-name">{{ user.name }}</div>
+              <div class="user-role">{{ user.role === 'admin' ? 'Admin' : 'Member' }}</div>
+            </div>
+          }
+        </div>
+        <button class="logout-btn" (click)="logout()" title="Log out">
+          <i class="ti ti-logout"></i>
+        </button>
       </div>
     </div>
   </aside>

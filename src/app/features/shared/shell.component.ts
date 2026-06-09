@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, signal, HostListener } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { AsyncPipe, DatePipe } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -23,6 +23,7 @@ export class ShellComponent implements OnInit, OnDestroy {
   constructor(
     private auth:  AuthService,
     private toast: ToastService,
+    private router: Router,
     public  theme: ThemeService,
     public  notif: NotificationService,
   ) {}
@@ -37,7 +38,7 @@ export class ShellComponent implements OnInit, OnDestroy {
 
   get isAdmin(): boolean { return this.auth.isAdmin; }
 
-  logout(): void { this.auth.logout(); }
+  logout(): void { this.auth.logout(); this.router.navigate(['/login']); }
   dismissToast(id: number): void { this.toast.dismiss(id); }
 
   toggleBell(): void {

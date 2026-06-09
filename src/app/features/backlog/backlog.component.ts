@@ -29,7 +29,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  get users(): User[] { return this.userService.getAll(); }
+  get users(): User[] { return this.userService.getNonAdmin(); }
 
   constructor(private workItemService: WorkItemService, private userService: UserService) {}
 

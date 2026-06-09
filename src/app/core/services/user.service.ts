@@ -21,6 +21,10 @@ export class UserService {
     return this.usersSubject.value;
   }
 
+  getNonAdmin(): User[] {
+    return this.getAll().filter(u => u.role !== 'admin');
+  }
+
   getById(id: string): User | undefined {
     return this.getAll().find(u => u.id === id);
   }
