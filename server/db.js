@@ -1,7 +1,10 @@
 const { DatabaseSync } = require('node:sqlite');
 const path = require('path');
 
-const dbPath = process.env.DB_PATH || path.join(__dirname, 'taskflow.db');
+const defaultDbPath = process.env.NODE_ENV === 'production'
+  ? '/data/taskflow.db'
+  : path.join(__dirname, 'taskflow.db');
+const dbPath = process.env.DB_PATH || defaultDbPath;
 const db = new DatabaseSync(dbPath);
 
 db.exec(`
