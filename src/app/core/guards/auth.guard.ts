@@ -8,6 +8,11 @@ export const authGuard: CanActivateFn = () => {
   const auth   = inject(AuthService);
   const router = inject(Router);
 
+  // If session is already resolved, check synchronously
+  if (auth.sessionReady$.value) {
+    return auth.isLoggedIn ? true : router.createUrlTree(['/login']);
+  }
+
   return auth.sessionReady$.pipe(
     filter(ready => ready),
     take(1),
