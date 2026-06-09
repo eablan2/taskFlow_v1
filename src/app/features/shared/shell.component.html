@@ -15,12 +15,12 @@
       <span class="sidebar-title">TaskFlow</span>
 
       <!-- Bell -->
+      @let notifData = notif.data$ | async;
       <div class="bell-wrap" style="margin-left:auto">
         <button class="bell-btn" (click)="toggleBell(); $event.stopPropagation()" title="Notifications">
           <i class="ti ti-bell"></i>
-          @let data = notif.data$ | async;
-          @if ((data?.unread ?? 0) > 0) {
-            <span class="bell-badge">{{ data!.unread }}</span>
+          @if ((notifData?.unread ?? 0) > 0) {
+            <span class="bell-badge">{{ notifData!.unread }}</span>
           }
         </button>
 
@@ -31,13 +31,12 @@
               <button class="notif-clear-btn" (click)="notif.clearAll()">Clear all</button>
             </div>
 
-            @if (data) {
-              <!-- Recent -->
+            @if (notifData) {
               <div class="notif-section-label">Recent</div>
-              @if (data.recent.length === 0) {
+              @if (notifData.recent.length === 0) {
                 <div class="notif-empty">No recent notifications</div>
               } @else {
-                @for (n of data.recent; track n.id) {
+                @for (n of notifData.recent; track n.id) {
                   <div class="notif-item" [class.unread]="!n.read">
                     <i class="ti notif-icon" [class.ti-at]="n.type === 'mention'" [class.ti-circle-check]="n.type === 'item_closed'"></i>
                     <div class="notif-body">
@@ -48,10 +47,9 @@
                 }
               }
 
-              <!-- Previous -->
-              @if (data.previous.length > 0) {
+              @if (notifData.previous.length > 0) {
                 <div class="notif-section-label" style="margin-top:8px">Previous</div>
-                @for (n of data.previous; track n.id) {
+                @for (n of notifData.previous; track n.id) {
                   <div class="notif-item">
                     <i class="ti notif-icon" [class.ti-at]="n.type === 'mention'" [class.ti-circle-check]="n.type === 'item_closed'"></i>
                     <div class="notif-body">
