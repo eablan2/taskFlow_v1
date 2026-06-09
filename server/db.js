@@ -89,6 +89,11 @@ if (itemCount.n === 0) {
   db.prepare('INSERT OR IGNORE INTO id_counter (id, val) VALUES (?,?)').run('items', 6);
 }
 
+// Migrate: add parent_id to comments if missing
+try {
+  db.exec('ALTER TABLE comments ADD COLUMN parent_id TEXT DEFAULT NULL');
+} catch (e) { /* column already exists */ }
+
 if (!db.prepare('SELECT val FROM id_counter WHERE id=?').get('items')) {
   db.prepare('INSERT INTO id_counter (id, val) VALUES (?,?)').run('items', 6);
 }
