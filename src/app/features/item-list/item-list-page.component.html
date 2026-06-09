@@ -24,9 +24,8 @@
 
     <!-- Epics (expandable) -->
     @for (epic of epics; track epic.id) {
-      <!-- Epic row -->
-      <div class="iv-row iv-row-epic" (click)="toggle(epic.id)">
-        <div class="iv-col iv-col-id">
+      <div class="iv-row iv-row-epic" (click)="openDetail(epic)">
+        <div class="iv-col iv-col-id" (click)="toggle(epic.id); $event.stopPropagation()">
           <button class="iv-expand-btn" [class.open]="isExpanded(epic.id)">
             <i class="ti ti-chevron-right"></i>
           </button>
@@ -53,17 +52,16 @@
         <div class="iv-col iv-col-pts">{{ epic.points || '—' }}</div>
         <div class="iv-col iv-col-actions" (click)="$event.stopPropagation()">
           <a class="icon-btn" [routerLink]="['/items', epic.id]" title="Full view"><i class="ti ti-maximize" style="font-size:13px"></i></a>
-          <button class="icon-btn" (click)="openEdit(epic)" title="Edit"><i class="ti ti-edit" style="font-size:13px"></i></button>
+          <button class="icon-btn" (click)="openEdit(epic, $event)" title="Edit"><i class="ti ti-edit" style="font-size:13px"></i></button>
           @if (isAdmin) {
-            <button class="icon-btn danger" (click)="onDelete(epic.id)" title="Delete"><i class="ti ti-trash" style="font-size:13px"></i></button>
+            <button class="icon-btn danger" (click)="onDelete(epic.id, $event)" title="Delete"><i class="ti ti-trash" style="font-size:13px"></i></button>
           }
         </div>
       </div>
 
-      <!-- Children rows -->
       @if (isExpanded(epic.id)) {
         @for (child of childrenOf(epic); track child.id) {
-          <div class="iv-row iv-row-child">
+          <div class="iv-row iv-row-child" (click)="openDetail(child)">
             <div class="iv-col iv-col-id">
               <span class="iv-child-indent"></span>
               <i class="ti ti-corner-down-right iv-child-icon"></i>
@@ -85,9 +83,9 @@
             <div class="iv-col iv-col-pts">{{ child.points || '—' }}</div>
             <div class="iv-col iv-col-actions" (click)="$event.stopPropagation()">
               <a class="icon-btn" [routerLink]="['/items', child.id]" title="Full view"><i class="ti ti-maximize" style="font-size:13px"></i></a>
-              <button class="icon-btn" (click)="openEdit(child)" title="Edit"><i class="ti ti-edit" style="font-size:13px"></i></button>
+              <button class="icon-btn" (click)="openEdit(child, $event)" title="Edit"><i class="ti ti-edit" style="font-size:13px"></i></button>
               @if (isAdmin) {
-                <button class="icon-btn danger" (click)="onDelete(child.id)" title="Delete"><i class="ti ti-trash" style="font-size:13px"></i></button>
+                <button class="icon-btn danger" (click)="onDelete(child.id, $event)" title="Delete"><i class="ti ti-trash" style="font-size:13px"></i></button>
               }
             </div>
           </div>
@@ -95,11 +93,10 @@
       }
     }
 
-    <!-- Non-epic standalone items -->
     @if (nonEpics.length > 0) {
       <div class="iv-section-divider">Standalone Items</div>
       @for (item of nonEpics; track item.id) {
-        <div class="iv-row">
+        <div class="iv-row" (click)="openDetail(item)">
           <div class="iv-col iv-col-id"><span class="item-id">{{ item.id }}</span></div>
           <div class="iv-col iv-col-title"><span class="iv-title">{{ item.title }}</span></div>
           <div class="iv-col iv-col-type">
@@ -117,9 +114,9 @@
           <div class="iv-col iv-col-pts">{{ item.points || '—' }}</div>
           <div class="iv-col iv-col-actions" (click)="$event.stopPropagation()">
             <a class="icon-btn" [routerLink]="['/items', item.id]" title="Full view"><i class="ti ti-maximize" style="font-size:13px"></i></a>
-            <button class="icon-btn" (click)="openEdit(item)" title="Edit"><i class="ti ti-edit" style="font-size:13px"></i></button>
+            <button class="icon-btn" (click)="openEdit(item, $event)" title="Edit"><i class="ti ti-edit" style="font-size:13px"></i></button>
             @if (isAdmin) {
-              <button class="icon-btn danger" (click)="onDelete(item.id)" title="Delete"><i class="ti ti-trash" style="font-size:13px"></i></button>
+              <button class="icon-btn danger" (click)="onDelete(item.id, $event)" title="Delete"><i class="ti ti-trash" style="font-size:13px"></i></button>
             }
           </div>
         </div>
@@ -132,6 +129,16 @@
 
   </div>
 </div>
+
+@if (selectedItem) {
+  <app-work-item-detail
+    [item]="selectedItem"
+    [centered]="true"
+    (close)="selectedItem = null"
+    (edit)="openEdit($event); selectedItem = null"
+    (deleteClick)="onDelete($event); selectedItem = null"
+  />
+}
 
 @if (showModal) {
   <app-work-item-modal [item]="editItem" (saved)="closeModal()" (cancelled)="closeModal()" />

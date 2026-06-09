@@ -1,6 +1,6 @@
-<div class="detail-backdrop" (click)="close.emit()"></div>
+<div class="detail-backdrop" [class.detail-backdrop-center]="centered" (click)="close.emit()"></div>
 
-<aside class="detail-panel">
+<aside class="detail-panel" [class.detail-panel-center]="centered">
 
   <div class="detail-head">
     <div class="detail-head-meta">

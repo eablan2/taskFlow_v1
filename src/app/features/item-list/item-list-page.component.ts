@@ -5,12 +5,13 @@ import { WorkItemService } from '../../core/services/work-item.service';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
 import { WorkItemModalComponent } from '../shared/work-item-modal.component';
+import { WorkItemDetailComponent } from '../shared/work-item-detail.component';
 import { TypeCssPipe, DotCssPipe, StatusCssPipe, PriorityCssPipe } from '../shared/badge.pipes';
 
 @Component({
   selector: 'app-item-list-page',
   standalone: true,
-  imports: [RouterLink, WorkItemModalComponent, TypeCssPipe, DotCssPipe, StatusCssPipe, PriorityCssPipe],
+  imports: [RouterLink, WorkItemModalComponent, WorkItemDetailComponent, TypeCssPipe, DotCssPipe, StatusCssPipe, PriorityCssPipe],
   templateUrl: './item-list-page.component.html',
 })
 export class ItemListPageComponent implements OnInit {
@@ -18,6 +19,7 @@ export class ItemListPageComponent implements OnInit {
   nonEpics: WorkItem[] = [];
   expanded = new Set<string>();
 
+  selectedItem: WorkItem | null = null;
   editItem: WorkItem | null = null;
   showModal = false;
 
@@ -56,10 +58,11 @@ export class ItemListPageComponent implements OnInit {
 
   userName(uid: string): string { return this.userService.getById(uid)?.name ?? '—'; }
 
+  openDetail(item: WorkItem): void { this.selectedItem = item; }
   openFull(item: WorkItem): void { this.router.navigate(['/items', item.id]); }
-  openEdit(item: WorkItem): void { this.editItem = item; this.showModal = true; }
+  openEdit(item: WorkItem, e?: Event): void { e?.stopPropagation(); this.editItem = item; this.showModal = true; }
   openCreate(): void { this.editItem = null; this.showModal = true; }
   closeModal(): void { this.showModal = false; this.editItem = null; }
 
-  onDelete(id: string): void { this.workItemService.delete(id).subscribe(); }
+  onDelete(id: string, e?: Event): void { e?.stopPropagation(); this.workItemService.delete(id).subscribe(); }
 }

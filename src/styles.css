@@ -677,6 +677,25 @@ table.items tr:hover td { background: var(--surface2); cursor: pointer; }
   to   { opacity: 1; }
 }
 
+/* Centered modal variant */
+.detail-backdrop-center { background: rgba(0,0,0,0.55); }
+.detail-panel-center {
+  position: fixed;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  right: auto; bottom: auto;
+  width: min(760px, 92vw);
+  max-height: 88vh;
+  border-left: none;
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  animation: popIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes popIn {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
 .detail-panel {
   position: fixed; top: 0; right: 0; bottom: 0; z-index: 91;
   width: 440px;

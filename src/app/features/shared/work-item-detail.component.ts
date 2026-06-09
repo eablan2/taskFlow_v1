@@ -17,6 +17,7 @@ import { TypeCssPipe, DotCssPipe, StatusCssPipe, PriorityCssPipe } from './badge
 })
 export class WorkItemDetailComponent implements OnInit, OnChanges {
   @Input() item!: WorkItem;
+  @Input() centered = false;
   @Output() close       = new EventEmitter<void>();
   @Output() edit        = new EventEmitter<WorkItem>();
   @Output() deleteClick = new EventEmitter<string>();
