@@ -15,6 +15,10 @@ export class CommentService {
     return this.http.post<Comment>(`/api/items/${itemId}/comments`, { body, parent_id: parentId });
   }
 
+  deleteComment(itemId: string, commentId: string): Observable<void> {
+    return this.http.delete<void>(`/api/items/${itemId}/comments/${commentId}`);
+  }
+
   toggleReaction(itemId: string, commentId: string, emoji: string): Observable<Record<string, string[]>> {
     return this.http.post<Record<string, string[]>>(
       `/api/items/${itemId}/comments/${commentId}/reactions`, { emoji }

@@ -44,6 +44,17 @@ router.post('/:itemId/comments', (req, res) => {
   res.status(201).json(rowToComment(row));
 });
 
+// DELETE /api/items/:itemId/comments/:commentId
+router.delete('/:itemId/comments/:commentId', (req, res) => {
+  const row = db.prepare('SELECT * FROM comments WHERE id=?').get(req.params.commentId);
+  if (!row) return res.status(404).json({ error: 'Not found' });
+  if (row.user_id !== req.userId) return res.status(403).json({ error: 'Forbidden' });
+
+  db.prepare('DELETE FROM comment_reactions WHERE comment_id=?').run(req.params.commentId);
+  db.prepare('DELETE FROM comments WHERE id=?').run(req.params.commentId);
+  res.status(204).end();
+});
+
 // POST /api/items/:itemId/comments/:commentId/reactions
 router.post('/:itemId/comments/:commentId/reactions', (req, res) => {
   const { emoji } = req.body;

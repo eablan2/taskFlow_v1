@@ -11,6 +11,7 @@ interface KanbanColumn {
   status: ItemStatus;
   color: string;
   items: WorkItem[];
+  typeFilter: ItemType | '';
 }
 
 @Component({
@@ -21,7 +22,6 @@ interface KanbanColumn {
 })
 export class BoardComponent implements OnInit, OnDestroy {
   columns: KanbanColumn[] = [];
-  typeFilter: ItemType | '' = '';
   selectedItem: WorkItem | null = null;
   editItem: WorkItem | null = null;
   showModal = false;
@@ -50,14 +50,25 @@ export class BoardComponent implements OnInit, OnDestroy {
   }
 
   renderBoard(): void {
-    let items = this.workItemService.getAll();
-    if (this.typeFilter) items = items.filter(i => i.type === this.typeFilter);
+    const all = this.workItemService.getAll();
+    // Preserve existing per-column filters across re-renders
+    const prevFilters = Object.fromEntries(this.columns.map(c => [c.status, c.typeFilter]));
 
-    this.columns = this.workItemService.STATUSES.map(status => ({
-      status,
-      color: this.STATUS_COLORS[status],
-      items: items.filter(i => i.status === status),
-    }));
+    this.columns = this.workItemService.STATUSES.map(status => {
+      const typeFilter: ItemType | '' = prevFilters[status] ?? '';
+      const colItems = all.filter(i => i.status === status);
+      return {
+        status,
+        color: this.STATUS_COLORS[status],
+        typeFilter,
+        items: typeFilter ? colItems.filter(i => i.type === typeFilter) : colItems,
+      };
+    });
+  }
+
+  filterColumn(col: KanbanColumn): void {
+    const all = this.workItemService.getAll().filter(i => i.status === col.status);
+    col.items = col.typeFilter ? all.filter(i => i.type === col.typeFilter) : all;
   }
 
   openDetail(item: WorkItem): void { this.selectedItem = item; }

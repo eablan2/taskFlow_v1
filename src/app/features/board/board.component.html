@@ -9,20 +9,19 @@
 
 <div class="page-content">
 
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-    <select class="filter-select" [(ngModel)]="typeFilter" (ngModelChange)="renderBoard()">
-      @for (t of TYPES; track t) {
-        <option [value]="t">{{ t || 'All types' }}</option>
-      }
-    </select>
-  </div>
-
   <div class="kanban-board">
     @for (col of columns; track col.status) {
       <div class="kanban-col">
         <div class="kanban-col-head">
-          <span class="kanban-col-title" [style.color]="col.color">{{ col.status }}</span>
-          <span class="kanban-count">{{ col.items.length }}</span>
+          <div class="kanban-col-head-top">
+            <span class="kanban-col-title" [style.color]="col.color">{{ col.status }}</span>
+            <span class="kanban-count">{{ col.items.length }}</span>
+          </div>
+          <select class="kanban-type-filter" [(ngModel)]="col.typeFilter" (ngModelChange)="filterColumn(col)">
+            @for (t of TYPES; track t) {
+              <option [value]="t">{{ t || 'All types' }}</option>
+            }
+          </select>
         </div>
         <div class="kanban-items">
           @for (item of col.items; track item.id) {

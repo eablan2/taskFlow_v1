@@ -132,6 +132,11 @@
               <button class="comment-action-btn" (click)="startReply(c)">
                 <i class="ti ti-corner-down-right"></i> Reply
               </button>
+              @if (c.user_id === currentUserId) {
+                <button class="comment-action-btn comment-action-delete" (click)="deleteComment(c)" title="Delete">
+                  <i class="ti ti-trash"></i> Delete
+                </button>
+              }
             </div>
 
             <!-- Replies -->
@@ -172,6 +177,11 @@
                           </div>
                         }
                       </div>
+                      @if (r.user_id === currentUserId) {
+                        <button class="comment-action-btn comment-action-delete" (click)="deleteComment(r)" title="Delete">
+                          <i class="ti ti-trash"></i> Delete
+                        </button>
+                      }
                     </div>
                   </div>
                 }

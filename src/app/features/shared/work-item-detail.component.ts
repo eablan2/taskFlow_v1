@@ -122,6 +122,12 @@ export class WorkItemDetailComponent implements OnInit, OnChanges {
     return this.EMOJIS.filter(e => (comment.reactions[e]?.length ?? 0) > 0);
   }
 
+  deleteComment(comment: Comment): void {
+    this.commentService.deleteComment(this.item.id, comment.id).subscribe(() => {
+      this.comments = this.comments.filter(c => c.id !== comment.id && c.parent_id !== comment.id);
+    });
+  }
+
   reactionTooltip(comment: Comment, emoji: string): string {
     const names = (comment.reactions[emoji] ?? []).map(id => this.userName(id));
     return names.join(', ');

@@ -23,23 +23,32 @@
           />
         </div>
 
-        <select class="filter-select" [(ngModel)]="filters.type" (ngModelChange)="onFilterChange()">
-          @for (t of TYPES; track t) {
-            <option [value]="t">{{ t || 'All types' }}</option>
-          }
-        </select>
+        <div class="filter-field">
+          <label class="filter-label">Type</label>
+          <select class="filter-select" [(ngModel)]="filters.type" (ngModelChange)="onFilterChange()">
+            @for (t of TYPES; track t) {
+              <option [value]="t">{{ t || 'All' }}</option>
+            }
+          </select>
+        </div>
 
-        <select class="filter-select" [(ngModel)]="filters.status" (ngModelChange)="onFilterChange()">
-          @for (s of STATUSES; track s) {
-            <option [value]="s">{{ s || 'All statuses' }}</option>
-          }
-        </select>
+        <div class="filter-field">
+          <label class="filter-label">Status</label>
+          <select class="filter-select" [(ngModel)]="filters.status" (ngModelChange)="onFilterChange()">
+            @for (s of STATUSES; track s) {
+              <option [value]="s">{{ s || 'All' }}</option>
+            }
+          </select>
+        </div>
 
-        <select class="filter-select" [(ngModel)]="filters.priority" (ngModelChange)="onFilterChange()">
-          @for (p of PRIORITIES; track p) {
-            <option [value]="p">{{ p || 'All priorities' }}</option>
-          }
-        </select>
+        <div class="filter-field">
+          <label class="filter-label">Priority</label>
+          <select class="filter-select" [(ngModel)]="filters.priority" (ngModelChange)="onFilterChange()">
+            @for (p of PRIORITIES; track p) {
+              <option [value]="p">{{ p || 'All' }}</option>
+            }
+          </select>
+        </div>
 
       </div>
     </div>
