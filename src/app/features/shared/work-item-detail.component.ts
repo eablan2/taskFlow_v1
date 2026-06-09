@@ -121,4 +121,9 @@ export class WorkItemDetailComponent implements OnInit, OnChanges {
   activeReactions(comment: Comment): string[] {
     return this.EMOJIS.filter(e => (comment.reactions[e]?.length ?? 0) > 0);
   }
+
+  reactionTooltip(comment: Comment, emoji: string): string {
+    const names = (comment.reactions[emoji] ?? []).map(id => this.userName(id));
+    return names.join(', ');
+  }
 }

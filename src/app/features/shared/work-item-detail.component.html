@@ -106,6 +106,7 @@
                   <button
                     class="reaction-pill"
                     [class.reacted]="hasReacted(c, emoji)"
+                    [title]="reactionTooltip(c, emoji)"
                     (click)="pickEmoji(c, emoji)">
                     <span class="reaction-emoji">{{ emoji }}</span>
                     <span class="reaction-count">{{ reactionCount(c, emoji) }}</span>
