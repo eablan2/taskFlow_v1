@@ -49,6 +49,16 @@ db.exec(`
     created   INTEGER NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS notifications (
+    id       TEXT PRIMARY KEY,
+    user_id  TEXT NOT NULL,
+    type     TEXT NOT NULL,
+    message  TEXT NOT NULL,
+    item_id  TEXT,
+    read     INTEGER NOT NULL DEFAULT 0,
+    created  INTEGER NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS comment_reactions (
     comment_id TEXT NOT NULL,
     user_id    TEXT NOT NULL,

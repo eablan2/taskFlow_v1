@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const { requireAuth } = require('../middleware/auth');
+const { createNotification } = require('../notifyHelper');
 
 router.use(requireAuth);
 
@@ -69,7 +70,31 @@ router.put('/:id', (req, res) => {
   );
 
   if (links !== undefined) syncLinks(req.params.id, oldLinks, links);
-  res.json(rowToItem(db.prepare('SELECT * FROM items WHERE id=?').get(req.params.id)));
+
+  const updated = db.prepare('SELECT * FROM items WHERE id=?').get(req.params.id);
+
+  // Notify on item closed (status → Done)
+  if (existing.status !== 'Done' && updated.status === 'Done') {
+    const closerRow = db.prepare('SELECT name FROM users WHERE id=?').get(req.userId);
+    const closerName = closerRow?.name ?? 'Someone';
+    const msg = `${closerName} closed "${updated.title}"`;
+
+    // Notify assignee (if not the one closing)
+    if (updated.assignee && updated.assignee !== req.userId) {
+      createNotification(updated.assignee, 'item_closed', msg, updated.id);
+    }
+    // Notify unique commenters
+    const commenters = db.prepare(
+      'SELECT DISTINCT user_id FROM comments WHERE item_id=?'
+    ).all(updated.id);
+    for (const c of commenters) {
+      if (c.user_id !== req.userId && c.user_id !== updated.assignee) {
+        createNotification(c.user_id, 'item_closed', msg, updated.id);
+      }
+    }
+  }
+
+  res.json(rowToItem(updated));
 });
 
 // DELETE /api/items/:id

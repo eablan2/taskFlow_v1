@@ -35,6 +35,22 @@ export interface Comment {
   reactions: Record<string, string[]>;
 }
 
+export interface AppNotification {
+  id: string;
+  user_id: string;
+  type: 'mention' | 'item_closed';
+  message: string;
+  item_id: string | null;
+  read: number;
+  created: number;
+}
+
+export interface NotificationsResponse {
+  recent: AppNotification[];
+  previous: AppNotification[];
+  unread: number;
+}
+
 export interface WorkItemFilters {
   search?: string;
   type?: ItemType | '';

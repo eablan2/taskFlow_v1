@@ -3,6 +3,7 @@ const router  = express.Router();
 const db      = require('../db');
 const { requireAuth } = require('../middleware/auth');
 const { randomUUID } = require('crypto');
+const { createNotification } = require('../notifyHelper');
 
 router.use(requireAuth);
 
@@ -41,6 +42,26 @@ router.post('/:itemId/comments', (req, res) => {
   ).run(id, req.params.itemId, req.userId, body.trim(), parent_id, Date.now());
 
   const row = db.prepare('SELECT * FROM comments WHERE id=?').get(id);
+
+  // Fire @mention notifications
+  const mentions = [...body.trim().matchAll(/@(\w+)/g)].map(m => m[1]);
+  const authorRow = db.prepare('SELECT name FROM users WHERE id=?').get(req.userId);
+  const authorName = authorRow?.name ?? 'Someone';
+  const item = db.prepare('SELECT title FROM items WHERE id=?').get(req.params.itemId);
+  const itemTitle = item?.title ?? req.params.itemId;
+
+  for (const username of mentions) {
+    const mentioned = db.prepare('SELECT id FROM users WHERE username=?').get(username);
+    if (mentioned && mentioned.id !== req.userId) {
+      createNotification(
+        mentioned.id,
+        'mention',
+        `${authorName} mentioned you in a comment on "${itemTitle}"`,
+        req.params.itemId
+      );
+    }
+  }
+
   res.status(201).json(rowToComment(row));
 });
 

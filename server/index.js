@@ -14,6 +14,7 @@ app.use('/api/auth',  require('./routes/auth'));
 app.use('/api/items', require('./routes/items'));
 app.use('/api/items', require('./routes/comments'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/notifications', require('./routes/notifications'));
 
 // Serve Angular build in production
 if (PROD) {

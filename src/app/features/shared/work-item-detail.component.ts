@@ -22,6 +22,8 @@ export class WorkItemDetailComponent implements OnInit, OnChanges {
   @Output() edit        = new EventEmitter<WorkItem>();
   @Output() deleteClick = new EventEmitter<string>();
 
+  history: WorkItem[] = [];
+
   comments: Comment[] = [];
   newComment = '';
   submitting = false;
@@ -33,6 +35,9 @@ export class WorkItemDetailComponent implements OnInit, OnChanges {
   emojiPickerFor: string | null = null; // comment id
   readonly EMOJIS = ['👍', '❤️', '😲', '😂', '😢'];
 
+  mentionSuggestions: { id: string; name: string; username: string }[] = [];
+  activeMentionField: 'new' | 'reply' | null = null;
+
   constructor(
     private userService: UserService,
     private workItemService: WorkItemService,
@@ -41,9 +46,9 @@ export class WorkItemDetailComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void { this.loadComments(); }
-  ngOnChanges(): void { this.loadComments(); }
+  ngOnChanges(): void { this.history = []; this.loadComments(); }
 
-  private loadComments(): void {
+  loadComments(): void {
     if (!this.item) return;
     this.commentService.getComments(this.item.id).subscribe(c => this.comments = c);
   }
@@ -59,12 +64,46 @@ export class WorkItemDetailComponent implements OnInit, OnChanges {
     return this.workItemService.getById(id);
   }
 
+  openLinkedItem(linked: WorkItem): void {
+    this.history.push(this.item);
+    this.item = linked;
+    this.loadComments();
+  }
+
+  goBack(): void {
+    const prev = this.history.pop();
+    if (prev) { this.item = prev; this.loadComments(); }
+  }
+
   topLevel(): Comment[] {
     return this.comments.filter(c => !c.parent_id);
   }
 
   repliesFor(id: string): Comment[] {
     return this.comments.filter(c => c.parent_id === id);
+  }
+
+  onCommentInput(e: Event, field: 'new' | 'reply'): void {
+    const val: string = field === 'new' ? this.newComment : this.replyText;
+    const match = val.match(/@(\w*)$/);
+    if (match) {
+      const q = match[1].toLowerCase();
+      this.mentionSuggestions = this.userService.getAll()
+        .filter(u => u.username.toLowerCase().startsWith(q) || u.name.toLowerCase().startsWith(q))
+        .slice(0, 5);
+      this.activeMentionField = field;
+    } else {
+      this.mentionSuggestions = [];
+      this.activeMentionField = null;
+    }
+  }
+
+  pickMention(username: string): void {
+    const replace = (val: string) => val.replace(/@\w*$/, `@${username} `);
+    if (this.activeMentionField === 'new') this.newComment = replace(this.newComment);
+    else if (this.activeMentionField === 'reply') this.replyText = replace(this.replyText);
+    this.mentionSuggestions = [];
+    this.activeMentionField = null;
   }
 
   submitComment(): void {

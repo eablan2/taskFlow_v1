@@ -4,6 +4,11 @@
 
   <div class="detail-head">
     <div class="detail-head-meta">
+      @if (history.length > 0) {
+        <button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" (click)="goBack()">
+          <i class="ti ti-arrow-left"></i> Back
+        </button>
+      }
       <span class="item-id">{{ item.id }}</span>
       <span class="badge" [class]="item.type | typeCss">
         <span class="badge-dot" [class]="item.type | dotCss"></span>
@@ -11,15 +16,15 @@
       </span>
     </div>
     <div class="detail-head-actions">
-      <a class="btn btn-ghost" [routerLink]="['/items', item.id]" style="padding:6px 14px;font-size:13px" (click)="close.emit()">
+      <a class="btn btn-ghost" [routerLink]="['/items', item.id]" style="padding:5px 10px;font-size:12px" (click)="close.emit()">
         <i class="ti ti-maximize"></i> Full View
       </a>
       @if (isAdmin) {
-        <button class="btn btn-danger" style="padding:6px 14px;font-size:13px" (click)="deleteClick.emit(item.id)">
+        <button class="btn btn-danger" style="padding:5px 10px;font-size:12px" (click)="deleteClick.emit(item.id)">
           <i class="ti ti-trash"></i> Delete
         </button>
       }
-      <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px" (click)="edit.emit(item)">
+      <button class="btn btn-ghost" style="padding:5px 10px;font-size:12px" (click)="edit.emit(item)">
         <i class="ti ti-edit"></i> Edit
       </button>
       <button class="icon-btn" (click)="close.emit()" title="Close">
@@ -73,7 +78,7 @@
           @for (lid of item.links; track lid) {
             @let linked = linkedItem(lid);
             @if (linked) {
-              <div class="linked-chip">
+              <div class="linked-chip linked-chip-clickable" (click)="openLinkedItem(linked)">
                 <span class="chip-id">{{ linked.id }}</span>
                 <span class="badge" [class]="linked.type | typeCss" style="font-size:10px;padding:1px 6px">
                   <span class="badge-dot" [class]="linked.type | dotCss"></span>
@@ -81,6 +86,7 @@
                 </span>
                 <span class="chip-title">{{ linked.title }}</span>
                 <span class="status-badge" [class]="linked.status | statusCss" style="font-size:10px">{{ linked.status }}</span>
+                <i class="ti ti-arrow-right" style="font-size:11px;color:var(--text3);margin-left:auto"></i>
               </div>
             }
           }
@@ -194,13 +200,26 @@
             <!-- Inline reply compose -->
             @if (replyingTo?.id === c.id) {
               <div class="reply-compose">
-                <textarea
-                  class="comment-input"
-                  rows="2"
-                  [placeholder]="'Replying to ' + userName(c.user_id) + '…'"
-                  [(ngModel)]="replyText"
-                  (keydown.escape)="cancelReply()">
-                </textarea>
+                <div class="mention-wrap">
+                  <textarea
+                    class="comment-input"
+                    rows="2"
+                    [placeholder]="'Replying to ' + userName(c.user_id) + '…'"
+                    [(ngModel)]="replyText"
+                    (input)="onCommentInput($event, 'reply')"
+                    (keydown.escape)="cancelReply()">
+                  </textarea>
+                  @if (activeMentionField === 'reply' && mentionSuggestions.length > 0) {
+                    <div class="mention-dropdown">
+                      @for (u of mentionSuggestions; track u.id) {
+                        <button class="mention-option" (mousedown)="pickMention(u.username)">
+                          <span class="mention-name">{{ u.name }}</span>
+                          <span class="mention-username">&#64;{{ u.username }}</span>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
                 <div class="reply-compose-actions">
                   <button class="btn btn-ghost" style="font-size:12px;padding:4px 12px" (click)="cancelReply()">Cancel</button>
                   <button class="btn btn-primary" style="font-size:12px;padding:4px 12px"
@@ -218,14 +237,27 @@
 
       <!-- New top-level comment -->
       <div class="comment-compose">
-        <textarea
-          class="comment-input"
-          rows="3"
-          placeholder="Write a comment…"
-          [(ngModel)]="newComment"
-          (keydown.meta.enter)="submitComment()"
-          (keydown.control.enter)="submitComment()">
-        </textarea>
+        <div class="mention-wrap">
+          <textarea
+            class="comment-input"
+            rows="3"
+            placeholder="Write a comment… use @ to mention someone"
+            [(ngModel)]="newComment"
+            (input)="onCommentInput($event, 'new')"
+            (keydown.meta.enter)="submitComment()"
+            (keydown.control.enter)="submitComment()">
+          </textarea>
+          @if (activeMentionField === 'new' && mentionSuggestions.length > 0) {
+            <div class="mention-dropdown">
+              @for (u of mentionSuggestions; track u.id) {
+                <button class="mention-option" (mousedown)="pickMention(u.username)">
+                  <span class="mention-name">{{ u.name }}</span>
+                  <span class="mention-username">&#64;{{ u.username }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
         <button class="btn btn-primary" style="align-self:flex-end;padding:6px 18px;font-size:13px"
           (click)="submitComment()" [disabled]="!newComment.trim() || submitting">
           Post
