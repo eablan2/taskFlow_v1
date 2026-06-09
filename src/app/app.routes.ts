@@ -30,6 +30,11 @@ export const routes: Routes = [
           import('./features/board/board.component').then(m => m.BoardComponent),
       },
       {
+        path: 'items',
+        loadComponent: () =>
+          import('./features/item-list/item-list-page.component').then(m => m.ItemListPageComponent),
+      },
+      {
         path: 'items/:id',
         loadComponent: () =>
           import('./features/item-detail/item-detail-page.component').then(m => m.ItemDetailPageComponent),

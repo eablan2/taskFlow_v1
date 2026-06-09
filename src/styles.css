@@ -736,6 +736,79 @@ table.items tr:hover td { background: var(--surface2); cursor: pointer; }
   white-space: pre-wrap;
 }
 
+/* ── Item View (list/table) ───────────────────────────────────────── */
+.iv-table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Shared column widths */
+.iv-col { display: flex; align-items: center; font-size: 13px; color: var(--text2); padding: 0 10px; overflow: hidden; }
+.iv-col-id       { width: 130px; min-width: 130px; gap: 6px; }
+.iv-col-title    { flex: 1; gap: 8px; }
+.iv-col-type     { width: 110px; min-width: 110px; }
+.iv-col-status   { width: 110px; min-width: 110px; }
+.iv-col-priority { width: 90px;  min-width: 90px; }
+.iv-col-assignee { width: 120px; min-width: 120px; font-size: 12px; }
+.iv-col-pts      { width: 50px;  min-width: 50px; justify-content: center; font-family: var(--mono); font-size: 12px; color: var(--text3); }
+.iv-col-actions  { width: 90px;  min-width: 90px; gap: 2px; justify-content: flex-end; }
+
+/* Header row */
+.iv-table-head {
+  display: flex; align-items: center;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 0;
+}
+.iv-table-head .iv-col {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--text3);
+}
+
+/* Data rows */
+.iv-row {
+  display: flex; align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+  cursor: default;
+}
+.iv-row:last-child { border-bottom: none; }
+.iv-row:hover { background: var(--surface2); }
+
+/* Epic row accent */
+.iv-row-epic { background: var(--surface); cursor: pointer; }
+.iv-row-epic:hover { background: var(--surface2); }
+
+/* Child row */
+.iv-row-child { background: var(--surface3); }
+.iv-row-child:hover { background: var(--surface2); }
+.iv-child-indent { width: 16px; flex-shrink: 0; }
+.iv-child-icon { font-size: 12px; color: var(--text3); flex-shrink: 0; margin-right: 4px; }
+
+/* Expand button */
+.iv-expand-btn {
+  background: none; border: none; cursor: pointer; padding: 2px;
+  color: var(--text3); display: flex; align-items: center; justify-content: center;
+  border-radius: 4px; transition: background 0.1s, color 0.1s; flex-shrink: 0;
+}
+.iv-expand-btn:hover { background: var(--surface3); color: var(--text); }
+.iv-expand-btn i { transition: transform 0.2s; font-size: 14px; }
+.iv-expand-btn.open i { transform: rotate(90deg); }
+
+.iv-title { font-size: 13px; color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.iv-child-count { font-size: 11px; color: var(--text3); background: var(--surface3); border: 1px solid var(--border); border-radius: 10px; padding: 1px 7px; white-space: nowrap; flex-shrink: 0; }
+
+/* Section divider */
+.iv-section-divider {
+  padding: 8px 16px;
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text3); background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+
 /* ── Item Full-View Page ──────────────────────────────────────────── */
 .full-detail-layout {
   display: grid;
