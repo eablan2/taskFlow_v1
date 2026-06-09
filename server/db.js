@@ -45,6 +45,7 @@ db.exec(`
     item_id   TEXT NOT NULL,
     user_id   TEXT NOT NULL,
     body      TEXT NOT NULL,
+    parent_id TEXT DEFAULT NULL,
     created   INTEGER NOT NULL
   );
 

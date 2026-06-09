@@ -11,8 +11,8 @@ export class CommentService {
     return this.http.get<Comment[]>(`/api/items/${itemId}/comments`);
   }
 
-  addComment(itemId: string, body: string): Observable<Comment> {
-    return this.http.post<Comment>(`/api/items/${itemId}/comments`, { body });
+  addComment(itemId: string, body: string, parentId: string | null = null): Observable<Comment> {
+    return this.http.post<Comment>(`/api/items/${itemId}/comments`, { body, parent_id: parentId });
   }
 
   toggleReaction(itemId: string, commentId: string, emoji: string): Observable<Record<string, string[]>> {

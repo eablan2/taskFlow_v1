@@ -30,8 +30,9 @@ export interface Comment {
   item_id: string;
   user_id: string;
   body: string;
+  parent_id: string | null;
   created: number;
-  reactions: Record<string, string[]>; // emoji -> userIds[]
+  reactions: Record<string, string[]>;
 }
 
 export interface WorkItemFilters {

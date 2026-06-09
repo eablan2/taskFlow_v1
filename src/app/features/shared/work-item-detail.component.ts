@@ -16,15 +16,20 @@ import { TypeCssPipe, DotCssPipe, StatusCssPipe, PriorityCssPipe } from './badge
 })
 export class WorkItemDetailComponent implements OnInit, OnChanges {
   @Input() item!: WorkItem;
-  @Output() close        = new EventEmitter<void>();
-  @Output() edit         = new EventEmitter<WorkItem>();
-  @Output() deleteClick  = new EventEmitter<string>();
+  @Output() close       = new EventEmitter<void>();
+  @Output() edit        = new EventEmitter<WorkItem>();
+  @Output() deleteClick = new EventEmitter<string>();
 
   comments: Comment[] = [];
   newComment = '';
   submitting = false;
 
-  readonly EMOJIS = ['👍', '❤️', '😮', '😂', '😢'];
+  replyingTo: Comment | null = null;
+  replyText = '';
+  replyingSubmitting = false;
+
+  emojiPickerFor: string | null = null; // comment id
+  readonly EMOJIS = ['👍', '❤️', '😲', '😂', '😢'];
 
   constructor(
     private userService: UserService,
@@ -52,6 +57,14 @@ export class WorkItemDetailComponent implements OnInit, OnChanges {
     return this.workItemService.getById(id);
   }
 
+  topLevel(): Comment[] {
+    return this.comments.filter(c => !c.parent_id);
+  }
+
+  repliesFor(id: string): Comment[] {
+    return this.comments.filter(c => c.parent_id === id);
+  }
+
   submitComment(): void {
     const body = this.newComment.trim();
     if (!body || this.submitting) return;
@@ -63,7 +76,35 @@ export class WorkItemDetailComponent implements OnInit, OnChanges {
     });
   }
 
-  toggleReaction(comment: Comment, emoji: string): void {
+  startReply(comment: Comment): void {
+    this.replyingTo = comment;
+    this.replyText = '';
+    this.emojiPickerFor = null;
+  }
+
+  cancelReply(): void {
+    this.replyingTo = null;
+    this.replyText = '';
+  }
+
+  submitReply(): void {
+    const body = this.replyText.trim();
+    if (!body || !this.replyingTo || this.replyingSubmitting) return;
+    this.replyingSubmitting = true;
+    this.commentService.addComment(this.item.id, body, this.replyingTo.id).subscribe(c => {
+      this.comments.push(c);
+      this.replyingTo = null;
+      this.replyText = '';
+      this.replyingSubmitting = false;
+    });
+  }
+
+  toggleEmojiPicker(commentId: string): void {
+    this.emojiPickerFor = this.emojiPickerFor === commentId ? null : commentId;
+  }
+
+  pickEmoji(comment: Comment, emoji: string): void {
+    this.emojiPickerFor = null;
     this.commentService.toggleReaction(this.item.id, comment.id, emoji).subscribe(reactions => {
       comment.reactions = reactions;
     });
@@ -75,5 +116,9 @@ export class WorkItemDetailComponent implements OnInit, OnChanges {
 
   hasReacted(comment: Comment, emoji: string): boolean {
     return comment.reactions[emoji]?.includes(this.currentUserId) ?? false;
+  }
+
+  activeReactions(comment: Comment): string[] {
+    return this.EMOJIS.filter(e => (comment.reactions[e]?.length ?? 0) > 0);
   }
 }

@@ -90,34 +90,119 @@
       <div class="detail-section-label">Comments ({{ comments.length }})</div>
 
       <div class="comments-list">
-        @for (c of comments; track c.id) {
-          <div class="comment-item">
-            <div class="comment-header">
+        @for (c of topLevel(); track c.id) {
+          <!-- Top-level bubble -->
+          <div class="comment-bubble">
+            <div class="comment-bubble-header">
               <span class="comment-author">{{ userName(c.user_id) }}</span>
-              <span class="comment-date">{{ c.created | date:'MMM d, y, h:mm a' }}</span>
+              <span class="comment-date">{{ c.created | date:'MMM d, y • h:mm a' }}</span>
             </div>
             <p class="comment-body">{{ c.body }}</p>
-            <div class="comment-reactions">
-              @for (emoji of EMOJIS; track emoji) {
-                <button
-                  class="reaction-btn"
-                  [class.reacted]="hasReacted(c, emoji)"
-                  (click)="toggleReaction(c, emoji)"
-                  [title]="emoji">
-                  {{ emoji }}
-                  @if (reactionCount(c, emoji) > 0) {
+
+            <!-- Active reactions -->
+            @if (activeReactions(c).length > 0) {
+              <div class="comment-reactions">
+                @for (emoji of activeReactions(c); track emoji) {
+                  <button
+                    class="reaction-pill"
+                    [class.reacted]="hasReacted(c, emoji)"
+                    (click)="pickEmoji(c, emoji)">
+                    <span class="reaction-emoji">{{ emoji }}</span>
                     <span class="reaction-count">{{ reactionCount(c, emoji) }}</span>
-                  }
+                  </button>
+                }
+              </div>
+            }
+
+            <!-- Actions row -->
+            <div class="comment-actions">
+              <div class="emoji-picker-wrap">
+                <button class="comment-action-btn" (click)="toggleEmojiPicker(c.id)" title="React">
+                  <i class="ti ti-mood-smile"></i>
                 </button>
-              }
+                @if (emojiPickerFor === c.id) {
+                  <div class="emoji-picker">
+                    @for (emoji of EMOJIS; track emoji) {
+                      <button class="emoji-option" (click)="pickEmoji(c, emoji)">{{ emoji }}</button>
+                    }
+                  </div>
+                }
+              </div>
+              <button class="comment-action-btn" (click)="startReply(c)">
+                <i class="ti ti-corner-down-right"></i> Reply
+              </button>
             </div>
+
+            <!-- Replies -->
+            @if (repliesFor(c.id).length > 0) {
+              <div class="replies-list">
+                @for (r of repliesFor(c.id); track r.id) {
+                  <div class="comment-bubble reply-bubble">
+                    <div class="comment-bubble-header">
+                      <span class="comment-author">{{ userName(r.user_id) }}</span>
+                      <span class="comment-date">{{ r.created | date:'MMM d, y • h:mm a' }}</span>
+                    </div>
+                    <p class="comment-body">{{ r.body }}</p>
+
+                    @if (activeReactions(r).length > 0) {
+                      <div class="comment-reactions">
+                        @for (emoji of activeReactions(r); track emoji) {
+                          <button
+                            class="reaction-pill"
+                            [class.reacted]="hasReacted(r, emoji)"
+                            (click)="pickEmoji(r, emoji)">
+                            <span class="reaction-emoji">{{ emoji }}</span>
+                            <span class="reaction-count">{{ reactionCount(r, emoji) }}</span>
+                          </button>
+                        }
+                      </div>
+                    }
+
+                    <div class="comment-actions">
+                      <div class="emoji-picker-wrap">
+                        <button class="comment-action-btn" (click)="toggleEmojiPicker(r.id)" title="React">
+                          <i class="ti ti-mood-smile"></i>
+                        </button>
+                        @if (emojiPickerFor === r.id) {
+                          <div class="emoji-picker">
+                            @for (emoji of EMOJIS; track emoji) {
+                              <button class="emoji-option" (click)="pickEmoji(r, emoji)">{{ emoji }}</button>
+                            }
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Inline reply compose -->
+            @if (replyingTo?.id === c.id) {
+              <div class="reply-compose">
+                <textarea
+                  class="comment-input"
+                  rows="2"
+                  [placeholder]="'Replying to ' + userName(c.user_id) + '…'"
+                  [(ngModel)]="replyText"
+                  (keydown.escape)="cancelReply()">
+                </textarea>
+                <div class="reply-compose-actions">
+                  <button class="btn btn-ghost" style="font-size:12px;padding:4px 12px" (click)="cancelReply()">Cancel</button>
+                  <button class="btn btn-primary" style="font-size:12px;padding:4px 12px"
+                    (click)="submitReply()" [disabled]="!replyText.trim() || replyingSubmitting">Reply</button>
+                </div>
+              </div>
+            }
           </div>
         }
+
         @if (comments.length === 0) {
-          <p class="comments-empty">No comments yet.</p>
+          <p class="comments-empty">No comments yet. Be the first!</p>
         }
       </div>
 
+      <!-- New top-level comment -->
       <div class="comment-compose">
         <textarea
           class="comment-input"
