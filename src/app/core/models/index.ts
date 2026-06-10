@@ -58,3 +58,18 @@ export interface WorkItemFilters {
   priority?: ItemPriority | '';
   assignee?: string;
 }
+
+export type ReceiptCategory = 'Food' | 'Travel' | 'Office' | 'Software' | 'Utilities' | 'Entertainment' | 'Other';
+
+export interface Receipt {
+  id: string;
+  name: string;
+  amount: number;
+  category: ReceiptCategory;
+  date: string;       // ISO date string YYYY-MM-DD
+  notes: string;
+  imageData: string;  // base64 data URL or empty string
+  imageName: string;
+  paid: boolean;
+  created: number;    // timestamp
+}

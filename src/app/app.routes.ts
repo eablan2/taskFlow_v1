@@ -40,6 +40,16 @@ export const routes: Routes = [
           import('./features/item-detail/item-detail-page.component').then(m => m.ItemDetailPageComponent),
       },
       {
+        path: 'forecast',
+        loadComponent: () =>
+          import('./features/forecast/forecast.component').then(m => m.ForecastComponent),
+      },
+      {
+        path: 'receipts',
+        loadComponent: () =>
+          import('./features/receipts/receipts.component').then(m => m.ReceiptsComponent),
+      },
+      {
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () =>

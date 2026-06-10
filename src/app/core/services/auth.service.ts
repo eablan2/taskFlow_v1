@@ -13,6 +13,7 @@ export class AuthService {
   sessionReady$:  Observable<boolean>     = this.sessionReadySubject.asObservable();
 
   get currentUser(): User | null { return this.currentUserSubject.value; }
+  get sessionReady(): boolean    { return this.sessionReadySubject.value; }
   get isAdmin(): boolean         { return this.currentUser?.role === 'admin'; }
   get isLoggedIn(): boolean      { return this.currentUser !== null; }
 

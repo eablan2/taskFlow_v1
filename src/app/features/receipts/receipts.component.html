@@ -1,0 +1,347 @@
+<!-- ── Top bar ── -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="page-title"><i class="ti ti-receipt" style="margin-right:6px"></i>Receipts</span>
+  </div>
+  <button class="btn btn-primary" (click)="openCreate()">
+    <i class="ti ti-plus"></i> Add Receipt
+  </button>
+</div>
+
+<div class="page-content">
+
+  <!-- ── Tabs ── -->
+  <div class="receipt-tabs">
+    <button class="receipt-tab" [class.active]="activeTab === 'all'" (click)="activeTab = 'all'">
+      <i class="ti ti-list"></i> All Receipts
+    </button>
+    <button class="receipt-tab" [class.active]="activeTab === 'monthly'" (click)="activeTab = 'monthly'">
+      <i class="ti ti-calendar-month"></i> Monthly View
+    </button>
+  </div>
+
+  <!-- ══ ALL RECEIPTS TAB ══ -->
+  @if (activeTab === 'all') {
+
+    <!-- ── Summary cards ── -->
+    <div class="receipt-summary-row">
+      <div class="receipt-stat-card">
+        <div class="receipt-stat-label">Total Receipts</div>
+        <div class="receipt-stat-value">{{ filtered.length }}</div>
+      </div>
+      <div class="receipt-stat-card accent">
+        <div class="receipt-stat-label">{{ filterCategory || 'Grand' }} Total</div>
+        <div class="receipt-stat-value">${{ grandTotal | number:'1.2-2' }}</div>
+      </div>
+      <div class="receipt-stat-card paid">
+        <div class="receipt-stat-label"><i class="ti ti-circle-check" style="margin-right:4px"></i>Paid</div>
+        <div class="receipt-stat-value">${{ paidTotal | number:'1.2-2' }}</div>
+      </div>
+      <div class="receipt-stat-card unpaid">
+        <div class="receipt-stat-label"><i class="ti ti-clock" style="margin-right:4px"></i>Unpaid</div>
+        <div class="receipt-stat-value">${{ unpaidTotal | number:'1.2-2' }}</div>
+      </div>
+    </div>
+
+    <!-- ── Category breakdown ── -->
+    @if (categoryBreakdown.length > 0) {
+      <div class="receipt-breakdown">
+        <div class="breakdown-title">Spending by Category</div>
+        <div class="breakdown-bars">
+          @for (item of categoryBreakdown; track item.category) {
+            <div class="breakdown-row">
+              <span class="breakdown-cat" [style.color]="categoryColor(item.category)">{{ item.category }}</span>
+              <div class="breakdown-bar-track">
+                <div class="breakdown-bar-fill"
+                     [style.width.%]="grandTotal ? (item.total / grandTotal) * 100 : 0"
+                     [style.background]="categoryColor(item.category)"></div>
+              </div>
+              <span class="breakdown-amount">${{ item.total | number:'1.2-2' }}</span>
+              <span class="breakdown-count">{{ item.count }} receipt{{ item.count !== 1 ? 's' : '' }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ── Filters & sort ── -->
+    <div class="receipt-toolbar">
+      <div class="filter-pills">
+        <button class="filter-pill" [class.active]="filterCategory === ''" (click)="filterCategory = ''">All</button>
+        @for (cat of categories; track cat) {
+          <button class="filter-pill" [class.active]="filterCategory === cat" (click)="filterCategory = cat">
+            {{ cat }}
+          </button>
+        }
+      </div>
+      <div class="receipt-toolbar-right">
+        <div class="paid-filter-group">
+          <button class="paid-filter-btn" [class.active]="filterPaid === 'all'"    (click)="filterPaid = 'all'">All</button>
+          <button class="paid-filter-btn paid"   [class.active]="filterPaid === 'paid'"   (click)="filterPaid = 'paid'">
+            <i class="ti ti-circle-check"></i> Paid
+          </button>
+          <button class="paid-filter-btn unpaid" [class.active]="filterPaid === 'unpaid'" (click)="filterPaid = 'unpaid'">
+            <i class="ti ti-clock"></i> Unpaid
+          </button>
+        </div>
+        <div class="sort-select-wrap">
+          <i class="ti ti-arrows-sort"></i>
+          <select class="sort-select" [(ngModel)]="sortBy">
+            <option value="date">Date</option>
+            <option value="amount">Amount</option>
+            <option value="name">Name</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Receipts grid ── -->
+    @if (filtered.length === 0) {
+      <div class="receipt-empty">
+        <i class="ti ti-receipt-off"></i>
+        <p>No receipts yet. Click <strong>Add Receipt</strong> to get started.</p>
+      </div>
+    } @else {
+      <ng-container *ngTemplateOutlet="receiptGrid; context: { $implicit: filtered }"></ng-container>
+    }
+
+  }
+
+  <!-- ══ MONTHLY VIEW TAB ══ -->
+  @if (activeTab === 'monthly') {
+
+    <!-- ── Month navigator ── -->
+    <div class="month-nav">
+      <button class="month-nav-btn" (click)="prevMonth()"><i class="ti ti-chevron-left"></i></button>
+      <div class="month-nav-center">
+        <span class="month-nav-label">{{ selectedMonthLabel }}</span>
+        @if (availableMonths.length > 0) {
+          <select class="month-jump-select" [(ngModel)]="selectedMonth">
+            @for (m of availableMonths; track m.value) {
+              <option [value]="m.value">{{ m.label }}</option>
+            }
+          </select>
+        }
+      </div>
+      <button class="month-nav-btn" (click)="nextMonth()"><i class="ti ti-chevron-right"></i></button>
+    </div>
+
+    <!-- ── Monthly summary cards ── -->
+    <div class="receipt-summary-row">
+      <div class="receipt-stat-card">
+        <div class="receipt-stat-label">Receipts This Month</div>
+        <div class="receipt-stat-value">{{ monthlyReceipts.length }}</div>
+      </div>
+      <div class="receipt-stat-card accent">
+        <div class="receipt-stat-label">Monthly Total</div>
+        <div class="receipt-stat-value">${{ monthlyTotal | number:'1.2-2' }}</div>
+      </div>
+      <div class="receipt-stat-card paid">
+        <div class="receipt-stat-label"><i class="ti ti-circle-check" style="margin-right:4px"></i>Paid</div>
+        <div class="receipt-stat-value">${{ monthlyPaid | number:'1.2-2' }}</div>
+      </div>
+      <div class="receipt-stat-card unpaid">
+        <div class="receipt-stat-label"><i class="ti ti-clock" style="margin-right:4px"></i>Unpaid</div>
+        <div class="receipt-stat-value">${{ monthlyUnpaid | number:'1.2-2' }}</div>
+      </div>
+    </div>
+
+    <!-- ── Monthly category breakdown ── -->
+    @if (monthlyCategoryBreakdown.length > 0) {
+      <div class="receipt-breakdown">
+        <div class="breakdown-title">{{ selectedMonthLabel }} — Spending by Category</div>
+        <div class="breakdown-bars">
+          @for (item of monthlyCategoryBreakdown; track item.category) {
+            <div class="breakdown-row">
+              <span class="breakdown-cat" [style.color]="categoryColor(item.category)">{{ item.category }}</span>
+              <div class="breakdown-bar-track">
+                <div class="breakdown-bar-fill"
+                     [style.width.%]="monthlyTotal ? (item.total / monthlyTotal) * 100 : 0"
+                     [style.background]="categoryColor(item.category)"></div>
+              </div>
+              <span class="breakdown-amount">${{ item.total | number:'1.2-2' }}</span>
+              <span class="breakdown-count">{{ item.count }} receipt{{ item.count !== 1 ? 's' : '' }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ── Monthly receipts list ── -->
+    @if (monthlyReceipts.length === 0) {
+      <div class="receipt-empty">
+        <i class="ti ti-calendar-off"></i>
+        <p>No receipts for <strong>{{ selectedMonthLabel }}</strong>.</p>
+      </div>
+    } @else {
+      <ng-container *ngTemplateOutlet="receiptGrid; context: { $implicit: monthlyReceipts }"></ng-container>
+    }
+
+  }
+
+</div>
+
+<!-- ── Shared receipt card grid template ── -->
+<ng-template #receiptGrid let-list>
+  <div class="receipt-grid">
+    @for (r of list; track r.id) {
+      <div class="receipt-card" [class.is-paid]="r.paid">
+        <div class="receipt-thumb" (click)="r.imageData ? openPreview(r) : null" [class.clickable]="!!r.imageData">
+          @if (r.imageData && isImage(r.imageName)) {
+            <img [src]="r.imageData" [alt]="r.name" />
+          } @else if (r.imageData) {
+            <div class="receipt-file-icon">
+              <i class="ti ti-file-description"></i>
+              <span>{{ r.imageName }}</span>
+            </div>
+          } @else {
+            <div class="receipt-no-image">
+              <i class="ti ti-photo-off"></i>
+            </div>
+          }
+          @if (r.paid) {
+            <div class="receipt-paid-badge"><i class="ti ti-circle-check"></i> Paid</div>
+          }
+        </div>
+
+        <div class="receipt-card-body">
+          <div class="receipt-card-top">
+            <span class="receipt-cat-badge"
+                  [style.background]="categoryColor(r.category) + '22'"
+                  [style.color]="categoryColor(r.category)">
+              {{ r.category }}
+            </span>
+            <span class="receipt-date">{{ r.date | date:'MMM d, y' }}</span>
+          </div>
+          <div class="receipt-name">{{ r.name }}</div>
+          <div class="receipt-amount">${{ r.amount | number:'1.2-2' }}</div>
+          @if (r.notes) {
+            <div class="receipt-notes">{{ r.notes }}</div>
+          }
+        </div>
+
+        <div class="receipt-card-actions">
+          <button class="rc-action-btn paid-toggle" [class.is-paid]="r.paid" (click)="togglePaid(r)"
+                  [title]="r.paid ? 'Mark as unpaid' : 'Mark as paid'">
+            <i class="ti" [class.ti-circle-check]="r.paid" [class.ti-circle]="!r.paid"></i>
+            {{ r.paid ? 'Paid' : 'Unpaid' }}
+          </button>
+          <button class="rc-action-btn" (click)="openEdit(r)" title="Edit">
+            <i class="ti ti-pencil"></i>
+          </button>
+          <button class="rc-action-btn danger" (click)="confirmDelete(r.id)" title="Delete">
+            <i class="ti ti-trash"></i>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</ng-template>
+
+<!-- ── Add / Edit form modal ── -->
+@if (showForm()) {
+  <div class="modal-overlay open" (click)="closeForm()">
+    <div class="modal" style="width:520px" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>{{ editTarget ? 'Edit Receipt' : 'Add Receipt' }}</h3>
+        <button class="icon-btn" (click)="closeForm()"><i class="ti ti-x"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="receipt-form-grid">
+          <div class="receipt-form-field full">
+            <label class="receipt-form-label">Receipt Name *</label>
+            <input class="receipt-form-input" type="text" [(ngModel)]="form.name" placeholder="e.g. Lunch at Chipotle" />
+          </div>
+
+          <div class="receipt-form-field">
+            <label class="receipt-form-label">Amount ($) *</label>
+            <input class="receipt-form-input" type="number" [(ngModel)]="form.amount" min="0" step="0.01" placeholder="0.00" />
+          </div>
+
+          <div class="receipt-form-field">
+            <label class="receipt-form-label">Date</label>
+            <input class="receipt-form-input" type="date" [(ngModel)]="form.date" />
+          </div>
+
+          <div class="receipt-form-field full">
+            <label class="receipt-form-label">Category</label>
+            <select class="receipt-form-input" [(ngModel)]="form.category">
+              @for (cat of categories; track cat) {
+                <option [value]="cat">{{ cat }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="receipt-form-field full">
+            <label class="receipt-form-label">Notes</label>
+            <textarea class="receipt-form-input receipt-form-textarea" [(ngModel)]="form.notes" placeholder="Optional notes…" rows="2"></textarea>
+          </div>
+
+          <div class="receipt-form-field full">
+            <label class="receipt-form-label">Receipt Image / File</label>
+            <label class="file-upload-btn">
+              <i class="ti ti-upload"></i>
+              {{ form.imageName || 'Choose file…' }}
+              <input type="file" accept="image/*,.pdf" (change)="onFileChange($event)" style="display:none" />
+            </label>
+            @if (form.imageData && isImage(form.imageName)) {
+              <img class="form-preview-img" [src]="form.imageData" alt="preview" />
+            }
+          </div>
+
+          <div class="receipt-form-field full">
+            <label class="receipt-paid-toggle-label">
+              <div class="receipt-paid-toggle" [class.on]="form.paid" (click)="form.paid = !form.paid">
+                <div class="receipt-paid-toggle-thumb"></div>
+              </div>
+              <span>Mark as paid</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn btn-ghost" (click)="closeForm()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveForm()" [disabled]="!form.name.trim() || form.amount <= 0">
+          {{ editTarget ? 'Save Changes' : 'Add Receipt' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── Image preview modal ── -->
+@if (previewReceipt) {
+  <div class="modal-overlay open" (click)="closePreview()">
+    <div class="modal modal-preview" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>{{ previewReceipt.name }}</h3>
+        <button class="icon-btn" (click)="closePreview()"><i class="ti ti-x"></i></button>
+      </div>
+      <div style="padding:0">
+        <img [src]="previewReceipt.imageData" [alt]="previewReceipt.name"
+             style="width:100%;display:block;border-radius:0 0 var(--radius-lg) var(--radius-lg)" />
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── Delete confirm modal ── -->
+@if (deleteConfirm) {
+  <div class="modal-overlay open" (click)="cancelDelete()">
+    <div class="modal modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>Delete Receipt</h3>
+        <button class="icon-btn" (click)="cancelDelete()"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text2)">Are you sure you want to delete this receipt? This cannot be undone.</p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" (click)="cancelDelete()">Cancel</button>
+        <button class="btn btn-danger" (click)="doDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+}

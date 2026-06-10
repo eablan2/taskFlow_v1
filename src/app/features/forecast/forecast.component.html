@@ -1,0 +1,234 @@
+<div class="forecast-page">
+
+  <header class="forecast-header">
+    <div>
+      <h1 class="forecast-title"><i class="ti ti-trending-up"></i> Financial Forecast</h1>
+      <p class="forecast-subtitle">{{ currentYear }} &middot; Monthly projections</p>
+    </div>
+
+    <div class="forecast-summary">
+      <div class="summary-chip income">
+        <span class="chip-label">Total Income</span>
+        <span class="chip-value">{{ formatK(totalIncome()) }}</span>
+      </div>
+      <div class="summary-chip cost">
+        <span class="chip-label">Total Costs</span>
+        <span class="chip-value">{{ formatK(totalCost()) }}</span>
+      </div>
+      <div class="summary-chip" [class.net-pos]="totalNet() >= 0" [class.net-neg]="totalNet() < 0">
+        <span class="chip-label">Net</span>
+        <span class="chip-value">{{ formatK(totalNet()) }}</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Balance -->
+  <div class="balance-card">
+    <div class="balance-blocks">
+
+      <div class="balance-block">
+        <span class="balance-label"><i class="ti ti-wallet"></i> Current Balance</span>
+        @if (editingBalance()) {
+          <div class="balance-edit-row">
+            <span class="balance-currency">$</span>
+            <input class="balance-input" type="number" [ngModel]="balanceDraft()" (ngModelChange)="balanceDraft.set(+$event)" (keydown.enter)="saveBalance()" (keydown.escape)="cancelEditBalance()" />
+            <button class="balance-action-btn save" (click)="saveBalance()"><i class="ti ti-check"></i> Save</button>
+            <button class="balance-action-btn cancel" (click)="cancelEditBalance()"><i class="ti ti-x"></i></button>
+          </div>
+        } @else {
+          <div class="balance-display-row">
+            <span class="balance-value" [class.neg]="balance() < 0">{{ formatK(balance()) }}</span>
+            @if (canEditBalance()) {
+              <button class="balance-edit-btn" (click)="startEditBalance()" title="Edit balance">
+                <i class="ti ti-pencil"></i> Edit
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="balance-sep"></div>
+
+      <div class="balance-block">
+        <span class="balance-label"><i class="ti ti-calendar-stats"></i> Projected End-of-Year</span>
+        <span class="balance-value projected" [class.neg]="projectedBalance() < 0">{{ formatK(projectedBalance()) }}</span>
+        <span class="balance-hint">Current balance + annual net ({{ formatK(totalNet()) }})</span>
+      </div>
+
+    </div>
+
+    @if (!canEditBalance()) {
+      <div class="balance-lock">
+        <i class="ti ti-lock"></i> Balance editing is restricted to admins, treasurer, and president.
+      </div>
+    }
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-card">
+    <svg [attr.viewBox]="'0 0 ' + chartW + ' ' + chartH" class="forecast-chart" preserveAspectRatio="xMidYMid meet">
+
+      @let d = chartData();
+
+      @for (gl of d.gridLines; track gl.y) {
+        <line [attr.x1]="padL" [attr.x2]="chartW - padR" [attr.y1]="gl.y" [attr.y2]="gl.y" class="grid-line" />
+        <text [attr.x]="padL - 8" [attr.y]="gl.y + 4" class="axis-label" text-anchor="end">{{ gl.label }}</text>
+      }
+
+      <line [attr.x1]="padL" [attr.x2]="chartW - padR" [attr.y1]="d.zeroY" [attr.y2]="d.zeroY" class="zero-line" />
+
+      @for (m of monthsShort; track m; let i = $index) {
+        <text [attr.x]="padL + i * ((chartW - padL - padR) / 11)" [attr.y]="chartH - padB + 18" class="axis-label" text-anchor="middle">{{ m }}</text>
+      }
+
+      <polyline [attr.points]="d.costPts"   class="line-cost"   fill="none" />
+      <polyline [attr.points]="d.incomePts" class="line-income" fill="none" />
+      <polyline [attr.points]="d.netPts"    class="line-net"    fill="none" />
+
+      @for (t of d.totals; track $index; let i = $index) {
+        <circle [attr.cx]="padL + i * ((chartW - padL - padR) / 11)" [attr.cy]="padT + (chartH - padT - padB) - ((t.income - d.minVal) / (d.maxVal - d.minVal || 1)) * (chartH - padT - padB)" r="4" class="dot-income">
+          <title>Income {{ monthsShort[i] }}: {{ formatK(t.income) }}</title>
+        </circle>
+        <circle [attr.cx]="padL + i * ((chartW - padL - padR) / 11)" [attr.cy]="padT + (chartH - padT - padB) - ((t.cost - d.minVal) / (d.maxVal - d.minVal || 1)) * (chartH - padT - padB)" r="4" class="dot-cost">
+          <title>Cost {{ monthsShort[i] }}: {{ formatK(t.cost) }}</title>
+        </circle>
+        <circle [attr.cx]="padL + i * ((chartW - padL - padR) / 11)" [attr.cy]="padT + (chartH - padT - padB) - ((t.net - d.minVal) / (d.maxVal - d.minVal || 1)) * (chartH - padT - padB)" r="3" class="dot-net">
+          <title>Net {{ monthsShort[i] }}: {{ formatK(t.net) }}</title>
+        </circle>
+      }
+
+    </svg>
+
+    <div class="chart-legend">
+      <span class="legend-item income"><span class="legend-dot"></span> Income</span>
+      <span class="legend-item cost"><span class="legend-dot"></span> Costs</span>
+      <span class="legend-item net"><span class="legend-dot"></span> Net</span>
+    </div>
+  </div>
+
+  <!-- Monthly breakdown -->
+  <div class="breakdown-card">
+    <h2 class="section-title">Monthly Breakdown</h2>
+    <div class="breakdown-scroll">
+      <table class="breakdown-table">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th class="num">Income</th>
+            <th class="num">Costs</th>
+            <th class="num">Net</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of monthlyTotals(); track $index; let i = $index) {
+            <tr>
+              <td>{{ months[i] }}</td>
+              <td class="num income-text">{{ formatK(t.income) }}</td>
+              <td class="num cost-text">{{ formatK(t.cost) }}</td>
+              <td class="num" [class.income-text]="t.net >= 0" [class.cost-text]="t.net < 0">{{ formatK(t.net) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Entries -->
+  <div class="entries-grid">
+
+    <div class="entries-card">
+      <h2 class="section-title"><i class="ti ti-arrow-up-right"></i> Income Sources</h2>
+
+      @for (e of incomeEntries; track e.id) {
+        <div class="entry-row">
+          <input class="entry-input label-input" [value]="e.label" (change)="updateEntry(e.id, 'label', $any($event.target).value)" placeholder="Label" />
+          <div class="entry-amount-wrap">
+            <span class="entry-prefix">$</span>
+            <input class="entry-input amount-input" type="number" min="0" [value]="e.monthlyAmount" (change)="updateEntry(e.id, 'monthlyAmount', $any($event.target).value)" placeholder="0" />
+            <span class="entry-suffix">/mo</span>
+          </div>
+          <select class="entry-select" [value]="e.startMonth" (change)="updateEntry(e.id, 'startMonth', $any($event.target).value)">
+            @for (m of monthRange; track m.value) {
+              <option [value]="m.value">{{ m.label }}</option>
+            }
+          </select>
+          <span class="entry-arrow">&rarr;</span>
+          <select class="entry-select" [value]="e.endMonth" (change)="updateEntry(e.id, 'endMonth', $any($event.target).value)">
+            @for (m of monthRange; track m.value) {
+              <option [value]="m.value">{{ m.label }}</option>
+            }
+          </select>
+          <button class="entry-remove" (click)="removeEntry(e.id)" title="Remove"><i class="ti ti-x"></i></button>
+        </div>
+      }
+
+      @if (incomeEntries.length === 0) {
+        <div class="entries-empty">No income sources yet.</div>
+      }
+    </div>
+
+    <div class="entries-card">
+      <h2 class="section-title"><i class="ti ti-arrow-down-right"></i> Costs</h2>
+
+      @for (e of costEntries; track e.id) {
+        <div class="entry-row">
+          <input class="entry-input label-input" [value]="e.label" (change)="updateEntry(e.id, 'label', $any($event.target).value)" placeholder="Label" />
+          <div class="entry-amount-wrap">
+            <span class="entry-prefix">$</span>
+            <input class="entry-input amount-input" type="number" min="0" [value]="e.monthlyAmount" (change)="updateEntry(e.id, 'monthlyAmount', $any($event.target).value)" placeholder="0" />
+            <span class="entry-suffix">/mo</span>
+          </div>
+          <select class="entry-select" [value]="e.startMonth" (change)="updateEntry(e.id, 'startMonth', $any($event.target).value)">
+            @for (m of monthRange; track m.value) {
+              <option [value]="m.value">{{ m.label }}</option>
+            }
+          </select>
+          <span class="entry-arrow">&rarr;</span>
+          <select class="entry-select" [value]="e.endMonth" (change)="updateEntry(e.id, 'endMonth', $any($event.target).value)">
+            @for (m of monthRange; track m.value) {
+              <option [value]="m.value">{{ m.label }}</option>
+            }
+          </select>
+          <button class="entry-remove" (click)="removeEntry(e.id)" title="Remove"><i class="ti ti-x"></i></button>
+        </div>
+      }
+
+      @if (costEntries.length === 0) {
+        <div class="entries-empty">No costs yet.</div>
+      }
+    </div>
+
+  </div>
+
+  <!-- Add entry form -->
+  <div class="add-card">
+    <h2 class="section-title">Add Entry</h2>
+    <div class="add-form">
+      <select class="entry-select type-select" [ngModel]="newType()" (ngModelChange)="newType.set($event)">
+        <option value="income">Income</option>
+        <option value="cost">Cost</option>
+      </select>
+      <input class="entry-input label-input" placeholder="Label (e.g. SaaS Revenue)" [ngModel]="newLabel()" (ngModelChange)="newLabel.set($event)" />
+      <div class="entry-amount-wrap">
+        <span class="entry-prefix">$</span>
+        <input class="entry-input amount-input" type="number" min="0" placeholder="0" [ngModel]="newAmount()" (ngModelChange)="newAmount.set(+$event)" />
+        <span class="entry-suffix">/mo</span>
+      </div>
+      <select class="entry-select" [ngModel]="newStart()" (ngModelChange)="newStart.set(+$event)">
+        @for (m of monthRange; track m.value) {
+          <option [value]="m.value">{{ m.label }}</option>
+        }
+      </select>
+      <span class="entry-arrow">&rarr;</span>
+      <select class="entry-select" [ngModel]="newEnd()" (ngModelChange)="newEnd.set(+$event)">
+        @for (m of monthRange; track m.value) {
+          <option [value]="m.value">{{ m.label }}</option>
+        }
+      </select>
+      <button class="add-btn" (click)="addEntry()" [disabled]="!newLabel().trim() || newAmount() <= 0">
+        <i class="ti ti-plus"></i> Add
+      </button>
+    </div>
+  </div>
+
+</div>

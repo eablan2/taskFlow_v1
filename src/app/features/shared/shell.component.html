@@ -81,6 +81,12 @@
         <a class="nav-item" routerLink="/items" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}" (click)="menuOpen.set(false)">
           <i class="ti ti-file-description"></i> Item View
         </a>
+        <a class="nav-item" routerLink="/receipts" routerLinkActive="active" (click)="menuOpen.set(false)">
+          <i class="ti ti-receipt"></i> Receipts
+        </a>
+        <a class="nav-item" routerLink="/forecast" routerLinkActive="active" (click)="menuOpen.set(false)">
+          <i class="ti ti-trending-up"></i> Forecast
+        </a>
       </div>
 
       @if (isAdmin) {
@@ -129,6 +135,9 @@
   </main>
 
 </div>
+
+<!-- ── Inactivity warning ── -->
+<app-inactivity-warning />
 
 <!-- ── Toast notifications ── -->
 <div class="toast">
