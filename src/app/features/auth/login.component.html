@@ -23,6 +23,7 @@
         placeholder="your username"
         autocomplete="username"
         (keydown)="onKeydown($event)"
+        [disabled]="loading()"
       />
     </div>
 
@@ -34,12 +35,29 @@
         placeholder="••••••••"
         autocomplete="current-password"
         (keydown)="onKeydown($event)"
+        [disabled]="loading()"
       />
     </div>
 
-    <button class="btn btn-primary btn-full" (click)="submit()">
-      <i class="ti ti-login"></i> Sign in
+    <button class="btn btn-primary btn-full" (click)="submit()" [disabled]="loading()">
+      @if (loading()) {
+        <span class="login-spinner"></span> Signing in…
+      } @else {
+        <i class="ti ti-login"></i> Sign in
+      }
     </button>
 
   </div>
 </div>
+
+<!-- Full-screen loading overlay shown after successful auth while page loads -->
+@if (loading()) {
+  <div class="login-loading-overlay">
+    <div class="login-loading-card">
+      <div class="login-loading-rings">
+        <div></div><div></div><div></div>
+      </div>
+      <span class="login-loading-text">Loading your workspace…</span>
+    </div>
+  </div>
+}

@@ -24,11 +24,12 @@ export class LoginComponent {
     if (this.loading()) return;
     this.loading.set(true);
     this.auth.login(this.username.trim(), this.password).subscribe(user => {
-      this.loading.set(false);
       if (user) {
         this.error.set(false);
+        // Keep loading=true so the overlay stays visible during navigation
         this.router.navigate(['/dashboard']);
       } else {
+        this.loading.set(false);
         this.error.set(true);
       }
     });
