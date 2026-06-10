@@ -23,7 +23,6 @@ const PRIVILEGED_USERNAMES = ['treasurer', 'president'];
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './forecast.component.html',
-  styleUrl: './forecast.component.css',
   encapsulation: ViewEncapsulation.None,
 })
 export class ForecastComponent {
