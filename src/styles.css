@@ -1558,6 +1558,38 @@ table.items tr:hover td { background: var(--surface2); cursor: pointer; }
   margin: 4px 0 0;
 }
 
+.forecast-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.receipts-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 44px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.receipts-toggle-btn.active {
+  background: rgba(99,102,241,0.12);
+  border-color: #6366f1;
+  color: #6366f1;
+}
+.receipts-toggle-btn:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+}
+
 .forecast-summary {
   display: flex;
   gap: 12px;

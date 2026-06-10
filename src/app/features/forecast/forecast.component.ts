@@ -2,6 +2,7 @@ import { Component, ViewEncapsulation, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { ReceiptService } from '../../core/services/receipt.service';
 
 export interface ForecastEntry {
   id: number;
@@ -60,7 +61,9 @@ export class ForecastComponent {
   readonly padT = 24;
   readonly padB = 48;
 
-  constructor(private auth: AuthService) {}
+  includeReceipts = signal(true);
+
+  constructor(private auth: AuthService, private receiptService: ReceiptService) {}
 
   canEditBalance = computed(() => {
     const user = this.auth.currentUser;
@@ -69,16 +72,25 @@ export class ForecastComponent {
 
   monthlyTotals = computed(() => {
     const es = this.entries();
+    const receipts = this.includeReceipts() ? this.receiptService.receipts : [];
     return Array.from({ length: 12 }, (_, m) => {
       let income = 0, cost = 0;
       for (const e of es) {
         const counts =
           e.frequency === 'one-time'
-            ? m === e.startMonth          // one-time: only the chosen month
-            : m >= e.startMonth && m <= e.endMonth; // monthly: full range
+            ? m === e.startMonth
+            : m >= e.startMonth && m <= e.endMonth;
         if (counts) {
           if (e.type === 'income') income += e.amount;
           else                     cost   += e.amount;
+        }
+      }
+      for (const r of receipts) {
+        const parts = r.date?.split('-');
+        if (parts?.length === 3) {
+          const year  = parseInt(parts[0], 10);
+          const month = parseInt(parts[1], 10) - 1;
+          if (year === CURRENT_YEAR && month === m) cost += r.amount;
         }
       }
       return { income, cost, net: income - cost };

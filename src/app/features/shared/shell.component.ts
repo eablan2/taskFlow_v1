@@ -41,7 +41,11 @@ export class ShellComponent implements OnInit, OnDestroy {
 
   get isAdmin(): boolean { return this.auth.isAdmin; }
 
-  logout(): void { this.auth.logout(); this.router.navigate(['/login']); }
+  logout(): void {
+    if (!confirm('Are you sure you want to log out?')) return;
+    this.auth.logout();
+    this.router.navigate(['/login']);
+  }
   dismissToast(id: number): void { this.toast.dismiss(id); }
 
   toggleBell(): void {

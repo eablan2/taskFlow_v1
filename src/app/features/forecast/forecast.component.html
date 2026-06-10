@@ -19,6 +19,10 @@
         <span class="chip-label">Net</span>
         <span class="chip-value">{{ formatK(totalNet()) }}</span>
       </div>
+      <button class="receipts-toggle-btn" [class.active]="includeReceipts()" (click)="includeReceipts.set(!includeReceipts())" title="Toggle receipt costs in forecast">
+        <i class="ti ti-receipt"></i>
+        {{ includeReceipts() ? 'Receipts included' : 'Receipts excluded' }}
+      </button>
     </div>
   </header>
 
