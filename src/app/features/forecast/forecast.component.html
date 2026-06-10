@@ -25,7 +25,6 @@
   <!-- Balance -->
   <div class="balance-card">
     <div class="balance-blocks">
-
       <div class="balance-block">
         <span class="balance-label"><i class="ti ti-wallet"></i> Current Balance</span>
         @if (editingBalance()) {
@@ -54,7 +53,6 @@
         <span class="balance-value projected" [class.neg]="projectedBalance() < 0">{{ formatK(projectedBalance()) }}</span>
         <span class="balance-hint">Current balance + annual net ({{ formatK(totalNet()) }})</span>
       </div>
-
     </div>
 
     @if (!canEditBalance()) {
@@ -67,16 +65,13 @@
   <!-- Chart -->
   <div class="chart-card">
     <svg [attr.viewBox]="'0 0 ' + chartW + ' ' + chartH" class="forecast-chart" preserveAspectRatio="xMidYMid meet">
-
       @let d = chartData();
 
       @for (gl of d.gridLines; track gl.y) {
         <line [attr.x1]="padL" [attr.x2]="chartW - padR" [attr.y1]="gl.y" [attr.y2]="gl.y" class="grid-line" />
         <text [attr.x]="padL - 8" [attr.y]="gl.y + 4" class="axis-label" text-anchor="end">{{ gl.label }}</text>
       }
-
       <line [attr.x1]="padL" [attr.x2]="chartW - padR" [attr.y1]="d.zeroY" [attr.y2]="d.zeroY" class="zero-line" />
-
       @for (m of monthsShort; track m; let i = $index) {
         <text [attr.x]="padL + i * ((chartW - padL - padR) / 11)" [attr.y]="chartH - padB + 18" class="axis-label" text-anchor="middle">{{ m }}</text>
       }
@@ -96,7 +91,6 @@
           <title>Net {{ monthsShort[i] }}: {{ formatK(t.net) }}</title>
         </circle>
       }
-
     </svg>
 
     <div class="chart-legend">
@@ -136,63 +130,107 @@
   <!-- Entries -->
   <div class="entries-grid">
 
+    <!-- Income -->
     <div class="entries-card">
       <h2 class="section-title"><i class="ti ti-arrow-up-right"></i> Income Sources</h2>
 
       @for (e of incomeEntries; track e.id) {
         <div class="entry-row">
-          <input class="entry-input label-input" [value]="e.label" (change)="updateEntry(e.id, 'label', $any($event.target).value)" placeholder="Label" />
+          <!-- Frequency toggle -->
+          <div class="freq-toggle">
+            <button class="freq-btn" [class.active]="e.frequency === 'monthly'"
+                    (click)="updateEntry(e.id, 'frequency', 'monthly')" title="Monthly recurring">
+              <i class="ti ti-repeat"></i>
+            </button>
+            <button class="freq-btn" [class.active]="e.frequency === 'one-time'"
+                    (click)="updateEntry(e.id, 'frequency', 'one-time')" title="One-time">
+              <i class="ti ti-calendar-event"></i>
+            </button>
+          </div>
+
+          <input class="entry-input label-input" [value]="e.label"
+                 (change)="updateEntry(e.id, 'label', $any($event.target).value)" placeholder="Label" />
+
           <div class="entry-amount-wrap">
             <span class="entry-prefix">$</span>
-            <input class="entry-input amount-input" type="number" min="0" [value]="e.monthlyAmount" (change)="updateEntry(e.id, 'monthlyAmount', $any($event.target).value)" placeholder="0" />
-            <span class="entry-suffix">/mo</span>
+            <input class="entry-input amount-input" type="number" min="0" [value]="e.amount"
+                   (change)="updateEntry(e.id, 'amount', $any($event.target).value)" placeholder="0" />
+            <span class="entry-suffix">{{ e.frequency === 'one-time' ? 'once' : '/mo' }}</span>
           </div>
-          <select class="entry-select" [value]="e.startMonth" (change)="updateEntry(e.id, 'startMonth', $any($event.target).value)">
-            @for (m of monthRange; track m.value) {
-              <option [value]="m.value">{{ m.label }}</option>
-            }
-          </select>
-          <span class="entry-arrow">&rarr;</span>
-          <select class="entry-select" [value]="e.endMonth" (change)="updateEntry(e.id, 'endMonth', $any($event.target).value)">
-            @for (m of monthRange; track m.value) {
-              <option [value]="m.value">{{ m.label }}</option>
-            }
-          </select>
+
+          @if (e.frequency === 'monthly') {
+            <select class="entry-select" [value]="e.startMonth"
+                    (change)="updateEntry(e.id, 'startMonth', $any($event.target).value)">
+              @for (m of monthRange; track m.value) { <option [value]="m.value">{{ m.label }}</option> }
+            </select>
+            <span class="entry-arrow">&rarr;</span>
+            <select class="entry-select" [value]="e.endMonth"
+                    (change)="updateEntry(e.id, 'endMonth', $any($event.target).value)">
+              @for (m of monthRange; track m.value) { <option [value]="m.value">{{ m.label }}</option> }
+            </select>
+          } @else {
+            <select class="entry-select" [value]="e.startMonth"
+                    (change)="updateEntry(e.id, 'startMonth', $any($event.target).value)">
+              @for (m of monthRange; track m.value) { <option [value]="m.value">{{ m.label }}</option> }
+            </select>
+          }
+
           <button class="entry-remove" (click)="removeEntry(e.id)" title="Remove"><i class="ti ti-x"></i></button>
         </div>
       }
-
       @if (incomeEntries.length === 0) {
         <div class="entries-empty">No income sources yet.</div>
       }
     </div>
 
+    <!-- Costs -->
     <div class="entries-card">
       <h2 class="section-title"><i class="ti ti-arrow-down-right"></i> Costs</h2>
 
       @for (e of costEntries; track e.id) {
         <div class="entry-row">
-          <input class="entry-input label-input" [value]="e.label" (change)="updateEntry(e.id, 'label', $any($event.target).value)" placeholder="Label" />
+          <!-- Frequency toggle -->
+          <div class="freq-toggle">
+            <button class="freq-btn" [class.active]="e.frequency === 'monthly'"
+                    (click)="updateEntry(e.id, 'frequency', 'monthly')" title="Monthly recurring">
+              <i class="ti ti-repeat"></i>
+            </button>
+            <button class="freq-btn" [class.active]="e.frequency === 'one-time'"
+                    (click)="updateEntry(e.id, 'frequency', 'one-time')" title="One-time">
+              <i class="ti ti-calendar-event"></i>
+            </button>
+          </div>
+
+          <input class="entry-input label-input" [value]="e.label"
+                 (change)="updateEntry(e.id, 'label', $any($event.target).value)" placeholder="Label" />
+
           <div class="entry-amount-wrap">
             <span class="entry-prefix">$</span>
-            <input class="entry-input amount-input" type="number" min="0" [value]="e.monthlyAmount" (change)="updateEntry(e.id, 'monthlyAmount', $any($event.target).value)" placeholder="0" />
-            <span class="entry-suffix">/mo</span>
+            <input class="entry-input amount-input" type="number" min="0" [value]="e.amount"
+                   (change)="updateEntry(e.id, 'amount', $any($event.target).value)" placeholder="0" />
+            <span class="entry-suffix">{{ e.frequency === 'one-time' ? 'once' : '/mo' }}</span>
           </div>
-          <select class="entry-select" [value]="e.startMonth" (change)="updateEntry(e.id, 'startMonth', $any($event.target).value)">
-            @for (m of monthRange; track m.value) {
-              <option [value]="m.value">{{ m.label }}</option>
-            }
-          </select>
-          <span class="entry-arrow">&rarr;</span>
-          <select class="entry-select" [value]="e.endMonth" (change)="updateEntry(e.id, 'endMonth', $any($event.target).value)">
-            @for (m of monthRange; track m.value) {
-              <option [value]="m.value">{{ m.label }}</option>
-            }
-          </select>
+
+          @if (e.frequency === 'monthly') {
+            <select class="entry-select" [value]="e.startMonth"
+                    (change)="updateEntry(e.id, 'startMonth', $any($event.target).value)">
+              @for (m of monthRange; track m.value) { <option [value]="m.value">{{ m.label }}</option> }
+            </select>
+            <span class="entry-arrow">&rarr;</span>
+            <select class="entry-select" [value]="e.endMonth"
+                    (change)="updateEntry(e.id, 'endMonth', $any($event.target).value)">
+              @for (m of monthRange; track m.value) { <option [value]="m.value">{{ m.label }}</option> }
+            </select>
+          } @else {
+            <select class="entry-select" [value]="e.startMonth"
+                    (change)="updateEntry(e.id, 'startMonth', $any($event.target).value)">
+              @for (m of monthRange; track m.value) { <option [value]="m.value">{{ m.label }}</option> }
+            </select>
+          }
+
           <button class="entry-remove" (click)="removeEntry(e.id)" title="Remove"><i class="ti ti-x"></i></button>
         </div>
       }
-
       @if (costEntries.length === 0) {
         <div class="entries-empty">No costs yet.</div>
       }
@@ -204,27 +242,47 @@
   <div class="add-card">
     <h2 class="section-title">Add Entry</h2>
     <div class="add-form">
+
       <select class="entry-select type-select" [ngModel]="newType()" (ngModelChange)="newType.set($event)">
         <option value="income">Income</option>
         <option value="cost">Cost</option>
       </select>
-      <input class="entry-input label-input" placeholder="Label (e.g. SaaS Revenue)" [ngModel]="newLabel()" (ngModelChange)="newLabel.set($event)" />
+
+      <!-- Frequency toggle in add form -->
+      <div class="freq-toggle">
+        <button class="freq-btn" [class.active]="newFrequency() === 'monthly'"
+                (click)="newFrequency.set('monthly')" title="Monthly recurring">
+          <i class="ti ti-repeat"></i> Monthly
+        </button>
+        <button class="freq-btn" [class.active]="newFrequency() === 'one-time'"
+                (click)="newFrequency.set('one-time')" title="One-time">
+          <i class="ti ti-calendar-event"></i> One-time
+        </button>
+      </div>
+
+      <input class="entry-input label-input" placeholder="Label" [ngModel]="newLabel()" (ngModelChange)="newLabel.set($event)" />
+
       <div class="entry-amount-wrap">
         <span class="entry-prefix">$</span>
-        <input class="entry-input amount-input" type="number" min="0" placeholder="0" [ngModel]="newAmount()" (ngModelChange)="newAmount.set(+$event)" />
-        <span class="entry-suffix">/mo</span>
+        <input class="entry-input amount-input" type="number" min="0" placeholder="0"
+               [ngModel]="newAmount()" (ngModelChange)="newAmount.set(+$event)" />
+        <span class="entry-suffix">{{ newFrequency() === 'one-time' ? 'once' : '/mo' }}</span>
       </div>
-      <select class="entry-select" [ngModel]="newStart()" (ngModelChange)="newStart.set(+$event)">
-        @for (m of monthRange; track m.value) {
-          <option [value]="m.value">{{ m.label }}</option>
-        }
-      </select>
-      <span class="entry-arrow">&rarr;</span>
-      <select class="entry-select" [ngModel]="newEnd()" (ngModelChange)="newEnd.set(+$event)">
-        @for (m of monthRange; track m.value) {
-          <option [value]="m.value">{{ m.label }}</option>
-        }
-      </select>
+
+      @if (newFrequency() === 'monthly') {
+        <select class="entry-select" [ngModel]="newStart()" (ngModelChange)="newStart.set(+$event)">
+          @for (m of monthRange; track m.value) { <option [value]="m.value">{{ m.label }}</option> }
+        </select>
+        <span class="entry-arrow">&rarr;</span>
+        <select class="entry-select" [ngModel]="newEnd()" (ngModelChange)="newEnd.set(+$event)">
+          @for (m of monthRange; track m.value) { <option [value]="m.value">{{ m.label }}</option> }
+        </select>
+      } @else {
+        <select class="entry-select" [ngModel]="newStart()" (ngModelChange)="newStart.set(+$event)">
+          @for (m of monthRange; track m.value) { <option [value]="m.value">{{ m.label }}</option> }
+        </select>
+      }
+
       <button class="add-btn" (click)="addEntry()" [disabled]="!newLabel().trim() || newAmount() <= 0">
         <i class="ti ti-plus"></i> Add
       </button>

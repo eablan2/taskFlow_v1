@@ -1814,18 +1814,29 @@ table.items tr:hover td { background: var(--surface2); cursor: pointer; }
   width: 100%;
   border-collapse: collapse;
   font-size: 0.85rem;
+  table-layout: fixed;
+}
+
+.breakdown-table th,
+.breakdown-table td {
+  width: 25%;
+  padding: 8px 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .breakdown-table th {
   color: var(--text2);
-  font-weight: 500;
-  padding: 6px 12px;
-  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid var(--border);
   text-align: left;
 }
 
 .breakdown-table td {
-  padding: 7px 12px;
   border-bottom: 1px solid var(--border);
   color: var(--text);
   font-family: 'IBM Plex Mono', monospace;
@@ -1835,7 +1846,7 @@ table.items tr:hover td { background: var(--surface2); cursor: pointer; }
 .breakdown-table tr:last-child td { border-bottom: none; }
 .breakdown-table tr:hover td { background: var(--surface2); }
 
-.num { text-align: right; }
+.num { text-align: left; }
 .income-text { color: var(--success); }
 .cost-text   { color: var(--danger); }
 
@@ -2061,4 +2072,41 @@ table.items tr:hover td { background: var(--surface2); cursor: pointer; }
   border-radius: 50%;
   animation: loginRingSpin 0.7s linear infinite;
   flex-shrink: 0;
+}
+
+/* ── Forecast frequency toggle ───────────────────────────────────── */
+.freq-toggle {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.freq-btn {
+  background: var(--surface2);
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  padding: 5px 8px;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+
+.freq-btn + .freq-btn {
+  border-left: 1px solid var(--border);
+}
+
+.freq-btn:hover {
+  background: var(--surface3);
+  color: var(--text);
+}
+
+.freq-btn.active {
+  background: var(--accent-dim);
+  color: var(--accent);
 }
