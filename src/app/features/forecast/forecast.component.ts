@@ -1,4 +1,6 @@
-import { Component, ViewEncapsulation, computed, signal } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy, computed, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { Receipt } from '../../core/models';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
@@ -27,7 +29,9 @@ const PRIVILEGED_USERNAMES = ['treasurer', 'president'];
   templateUrl: './forecast.component.html',
   encapsulation: ViewEncapsulation.None,
 })
-export class ForecastComponent {
+export class ForecastComponent implements OnInit, OnDestroy {
+  private receiptSub?: Subscription;
+  receiptsSnapshot = signal<Receipt[]>([]);
   readonly months = MONTH_LABELS;
   readonly monthsShort = MONTHS;
 
@@ -65,6 +69,12 @@ export class ForecastComponent {
 
   constructor(private auth: AuthService, private receiptService: ReceiptService) {}
 
+  ngOnInit() {
+    this.receiptSub = this.receiptService.receipts$.subscribe(r => this.receiptsSnapshot.set(r));
+  }
+
+  ngOnDestroy() { this.receiptSub?.unsubscribe(); }
+
   canEditBalance = computed(() => {
     const user = this.auth.currentUser;
     return user?.role === 'admin' || PRIVILEGED_USERNAMES.includes(user?.username ?? '');
@@ -72,7 +82,7 @@ export class ForecastComponent {
 
   monthlyTotals = computed(() => {
     const es = this.entries();
-    const receipts = this.includeReceipts() ? this.receiptService.receipts : [];
+    const receipts = this.includeReceipts() ? this.receiptsSnapshot().filter(r => r.paid) : [];
     return Array.from({ length: 12 }, (_, m) => {
       let income = 0, cost = 0;
       for (const e of es) {
