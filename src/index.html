@@ -6,14 +6,37 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <!-- Preconnect to external origins so DNS+TLS happens early -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
 
   <!--
-    Apply theme before Angular boots to avoid a flash of the wrong theme.
-    Reads the same localStorage key (tf_theme) that ThemeService uses.
+    Load Google Fonts non-blocking via media trick.
+    font-display=swap is appended so text stays visible while fonts load.
   -->
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap&font-display=swap"
+        media="print"
+        onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap">
+  </noscript>
+
+  <!--
+    Load Tabler Icons non-blocking — it's a large webfont (~500 kB) and
+    doesn't need to block the first paint.
+  -->
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css"
+        media="print"
+        onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css">
+  </noscript>
+
+  <!-- Apply saved theme before Angular boots to avoid flash -->
   <script>
     (function () {
       try {
